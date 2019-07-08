@@ -1,6 +1,5 @@
 import * as bare from "xterm";
-
-// bare.loadAddon("fit");
+import { fit } from 'xterm/lib/addons/fit/fit';
 
 export class Xterm {
     elem: HTMLElement;
@@ -21,7 +20,7 @@ export class Xterm {
         this.messageTimeout = 2000;
 
         this.resizeListener = () => {
-            //this.term.fit();
+            fit(this.term);
             this.term.scrollToBottom();
             this.showMessage(String(this.term.cols) + "x" + String(this.term.rows), this.messageTimeout);
         };
