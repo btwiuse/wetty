@@ -1,10 +1,10 @@
 import * as bare from "xterm";
 
-bare.loadAddon("fit");
+// bare.loadAddon("fit");
 
 export class Xterm {
     elem: HTMLElement;
-    term: bare;
+    term: bare.Terminal;
     resizeListener: () => void;
 
     message: HTMLElement;
@@ -14,14 +14,14 @@ export class Xterm {
 
     constructor(elem: HTMLElement) {
         this.elem = elem;
-        this.term = new bare();
+        this.term = new bare.Terminal();
 
-        this.message = elem.ownerDocument.createElement("div");
+        this.message = document.createElement("div");
         this.message.className = "xterm-overlay";
         this.messageTimeout = 2000;
 
         this.resizeListener = () => {
-            this.term.fit();
+            //this.term.fit();
             this.term.scrollToBottom();
             this.showMessage(String(this.term.cols) + "x" + String(this.term.rows), this.messageTimeout);
         };
@@ -31,7 +31,7 @@ export class Xterm {
             window.addEventListener("resize", () => { this.resizeListener(); });
         });
 
-        this.term.open(elem, true);
+        this.term.open(elem);
     };
 
     info(): { columns: number, rows: number } {
@@ -76,8 +76,8 @@ export class Xterm {
     };
 
     deactivate(): void {
-        this.term.off("data");
-        this.term.off("resize");
+        this.term.off("data", (...args: any[]) => {});
+        this.term.off("resize", (...args: any[]) => {});
         this.term.blur();
     }
 

@@ -1,7 +1,7 @@
 import * as bare from "xterm";
 export declare class Xterm {
     elem: HTMLElement;
-    term: bare;
+    term: bare.Terminal;
     resizeListener: () => void;
     message: HTMLElement;
     messageTimeout: number;
