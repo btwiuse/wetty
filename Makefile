@@ -5,7 +5,7 @@ client: main.go client/*.go
 	go install .
 	go build -o gotty-client
 
-gotty: main.go server/*.go webtty/*.go localcmd/*.go Makefile
+gotty: main.go server/*.go wetty/*.go localcmd/*.go Makefile
 	go install .
 
 .PHONY: asset
