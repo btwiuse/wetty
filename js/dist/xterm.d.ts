@@ -1,7 +1,7 @@
-import * as bare from "xterm";
+import { Terminal } from "xterm";
 export declare class Xterm {
     elem: HTMLElement;
-    term: bare.Terminal;
+    term: Terminal;
     resizeListener: () => void;
     message: HTMLElement;
     messageTimeout: number;

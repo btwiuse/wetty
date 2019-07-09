@@ -3,7 +3,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 module.exports = {
     entry: "./src/main.ts",
     output: {
-        filename: "./dist/gotty-bundle.js"
+        filename: "./gotty-bundle.js"
     },
     devtool: "source-map",
     resolve: {

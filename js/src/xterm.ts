@@ -1,9 +1,9 @@
-import * as bare from "xterm";
-import { fit } from 'xterm/lib/addons/fit/fit';
+import { Terminal } from "xterm";
+import { fit } from "xterm/lib/addons/fit/fit";
 
 export class Xterm {
     elem: HTMLElement;
-    term: bare.Terminal;
+    term: Terminal;
     resizeListener: () => void;
 
     message: HTMLElement;
@@ -13,7 +13,7 @@ export class Xterm {
 
     constructor(elem: HTMLElement) {
         this.elem = elem;
-        this.term = new bare.Terminal();
+        this.term = new Terminal();
 
         this.message = document.createElement("div");
         this.message.className = "xterm-overlay";
