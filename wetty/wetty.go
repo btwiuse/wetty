@@ -3,6 +3,7 @@
 package wetty
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -214,7 +215,8 @@ func (ms *MSPair) Pipe() error {
 }
 
 func (ms *MSPair) handleSlaveReadEvent(data []byte) error {
-	return ms.masterWrite(append([]byte{Output}, data...))
+	safeMessage := base64.StdEncoding.EncodeToString(data)
+	return ms.masterWrite(append([]byte{Output}, []byte(safeMessage)...))
 }
 
 func (ms *MSPair) masterWrite(data []byte) error {
