@@ -1,5 +1,5 @@
-// Package webtty provides a protocl and an implementation to
-// controll terminals thorough networks.
+// Package wetty provides a protocol and an implementation to
+// control terminals thorough networks.
 package wetty
 
 import (
