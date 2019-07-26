@@ -13,10 +13,10 @@ export class ConnectionFactory {
 }
 
 export class Connection {
-    bare: WebSocket;
+    ws: WebSocket;
 
     constructor(url: string, protocols: string[]) {
-        this.bare = new WebSocket(url, protocols);
+        this.ws = new WebSocket(url, protocols);
     }
 
     open() {
@@ -24,35 +24,35 @@ export class Connection {
     };
 
     close() {
-        this.bare.close();
+        this.ws.close();
     };
 
     send(data: string) {
-        this.bare.send(data);
+        this.ws.send(data);
     };
 
     isOpen(): boolean {
-        if (this.bare.readyState == WebSocket.CONNECTING ||
-            this.bare.readyState == WebSocket.OPEN) {
+        if (this.ws.readyState == WebSocket.CONNECTING ||
+            this.ws.readyState == WebSocket.OPEN) {
             return true
         }
         return false
     }
 
     onOpen(callback: () => void) {
-        this.bare.onopen = (event) => {
+        this.ws.onopen = (event) => {
             callback();
         }
     };
 
     onReceive(callback: (data: string) => void) {
-        this.bare.onmessage = (event) => {
+        this.ws.onmessage = (event) => {
             callback(event.data);
         }
     };
 
     onClose(callback: () => void) {
-        this.bare.onclose = (event) => {
+        this.ws.onclose = (event) => {
             callback();
         };
     };
