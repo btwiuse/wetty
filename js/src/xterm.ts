@@ -1,5 +1,6 @@
 import { Terminal } from "xterm";
-import { fit } from "xterm/lib/addons/fit/fit";
+import { FitAddon } from 'xterm-addon-fit';
+// import { fit } from "xterm/lib/addons/fit/fit";
 
 // https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
 // function b64DecodeUnicode(str) {
@@ -13,6 +14,7 @@ function Uatob(str) {
 export class Xterm {
     elem: HTMLElement;
     term: Terminal;
+    fit: FitAddon;
     resizeListener: () => void;
 
     message: HTMLElement;
@@ -23,7 +25,8 @@ export class Xterm {
     constructor(elem: HTMLElement) {
         this.elem = elem;
         this.term = new Terminal();
-        this.term.resize(100, 100);
+        // this.term.resize(100, 100);
+        this.fit = new FitAddon();
 
         this.message = elem.ownerDocument.createElement("div");
         this.message.className = "xterm-overlay";
@@ -31,17 +34,21 @@ export class Xterm {
 
         this.resizeListener = () => {
             console.log("resize:", this.info());
-            fit(this.term);
+            this.fit.fit();
             this.term.scrollToBottom();
             this.showMessage(String(this.term.cols) + "x" + String(this.term.rows), this.messageTimeout);
         };
 
-        this.term.on("open", () => {
-            this.resizeListener();
-            window.addEventListener("resize", () => { this.resizeListener(); });
-        });
+        // this.term.on("open", () => {
+        // });
 
         this.term.open(elem);
+        // onopen
+        this.resizeListener();
+        window.addEventListener("resize", () => { this.resizeListener(); });
+
+        this.term.loadAddon(this.fit)
+        this.fit.fit();
     };
 
     info(): { columns: number, rows: number } {
@@ -75,22 +82,22 @@ export class Xterm {
     }
 
     onInput(callback: (input: string) => void) {
-        this.term.on("data", (data) => {
+        this.term.onData((data) => {
             callback(data);
         });
 
     };
 
     onResize(callback: (colmuns: number, rows: number) => void) {
-        this.term.on("resize", (data) => {
+        this.term.onResize((data) => {
             console.log("onresize");
             callback(data.cols, data.rows);
         });
     };
 
     deactivate(): void {
-        this.term.off("data", (...args: any[]) => {});
-        this.term.off("resize", (...args: any[]) => {});
+        // this.term.off("data", (...args: any[]) => {});
+        // this.term.off("resize", (...args: any[]) => {});
         this.term.blur();
     }
 
@@ -101,6 +108,6 @@ export class Xterm {
 
     close(): void {
         window.removeEventListener("resize", this.resizeListener);
-        this.term.destroy();
+        this.term.dispose();
     }
 }
