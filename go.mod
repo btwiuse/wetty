@@ -1,4 +1,4 @@
-module github.com/navigaid/gotty
+module github.com/btwiuse/gotty
 
 go 1.12
 

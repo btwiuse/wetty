@@ -3,8 +3,8 @@ package client
 import (
 	"os"
 
-	"github.com/navigaid/gotty/utils"
-	"github.com/navigaid/gotty/wetty"
+	"github.com/btwiuse/gotty/utils"
+	"github.com/btwiuse/gotty/wetty"
 )
 
 type Client struct {

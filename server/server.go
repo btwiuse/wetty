@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/navigaid/gotty/localcmd"
+	"github.com/btwiuse/gotty/localcmd"
 )
 
 // Server provides a wetty HTTP endpoint.
