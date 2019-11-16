@@ -69,32 +69,33 @@ func Pipe(master, slave io.ReadWriter) error {
 
 	go func() {
 		errs <- func() error {
-			buffer := make([]byte, 65536) // if you set it to 400, master will receive 399- bytes on each read
+			// if you set it to 400, master will receive 399- bytes on each read
+			// this value should at least MSPair.bufferSize + 1
+			// otherwise some messages may be partially sent
+			buffer := make([]byte, 8192)
 			for {
 				select {
 				case <-quit:
 					return nil
 				default:
-					{
-						n, err := slave.Read(buffer)
-						if err != nil {
-							if quitted == false {
-								close(quit)
-								quitted = true
-							}
-							return err
+					n, err := slave.Read(buffer)
+					if err != nil {
+						if quitted == false {
+							close(quit)
+							quitted = true
 						}
+						return err
+					}
 
-						log.Println("Pipe: master <= slave", n)
+					log.Println("Pipe: master <= slave", n)
 
-						_, err = master.Write(buffer[:n])
-						if err != nil {
-							if quitted == false {
-								close(quit)
-								quitted = true
-							}
-							return err
+					_, err = master.Write(buffer[:n])
+					if err != nil {
+						if quitted == false {
+							close(quit)
+							quitted = true
 						}
+						return err
 					}
 				}
 			}
@@ -110,26 +111,24 @@ func Pipe(master, slave io.ReadWriter) error {
 				case <-quit:
 					return nil
 				default:
-					{
-						n, err := master.Read(buffer)
-						if err != nil {
-							if quitted == false {
-								close(quit)
-								quitted = true
-							}
-							return err
+					n, err := master.Read(buffer)
+					if err != nil {
+						if quitted == false {
+							close(quit)
+							quitted = true
 						}
+						return err
+					}
 
-						log.Println("Pipe: master => slave", n)
+					log.Println("Pipe: master => slave", n)
 
-						_, err = slave.Write(buffer[:n])
-						if err != nil {
-							if quitted == false {
-								close(quit)
-								quitted = true
-							}
-							return err
+					_, err = slave.Write(buffer[:n])
+					if err != nil {
+						if quitted == false {
+							close(quit)
+							quitted = true
 						}
+						return err
 					}
 				}
 			}
@@ -252,7 +251,7 @@ func NewMSPair(master Master, slave Slave) *MSPair {
 	return &MSPair{
 		master:     master,
 		slave:      slave,
-		bufferSize: 101,
+		bufferSize: 4096, // this means max websocket message size whill be 4096 + 1(msgType)
 	}
 }
 
