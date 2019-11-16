@@ -20,7 +20,7 @@ export class Xterm {
 
     constructor(elem: HTMLElement) {
         this.elem = elem;
-        this.term = new Terminal();
+        this.term = new Terminal({fontFamily: 'DejaVu Sans Mono, Everson Mono, FreeMono, Menlo, Terminal, monospace, Apple Symbols'});
         this.fit = new FitAddon();
 
         this.message = elem.ownerDocument.createElement("div");
