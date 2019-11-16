@@ -31,6 +31,7 @@ type (
 	Slave interface {
 		io.ReadWriteCloser
 		ResizeTerminal(*pty.Winsize) error
+		Kill() error
 	}
 
 	CMPair struct {
@@ -61,6 +62,85 @@ func NewCMPair(client Client, master Master) *CMPair {
 	}
 }
 
+func Pipe(master, slave io.ReadWriter) error {
+	errs := make(chan error, 2)
+
+	quit := make(chan interface{})
+	quitted := false
+
+	go func() {
+		errs <- func() error {
+			for {
+				select {
+				case <-quit:
+					return nil
+				default:
+					{
+						buffer := make([]byte, 65536) // if you set it to 400, master will receive 399- bytes on each read
+						n, err := slave.Read(buffer)
+						if err != nil {
+							if quitted == false {
+								close(quit)
+								quitted = true
+							}
+							return err
+						}
+
+						log.Println("master <= slave", n)
+
+						_, err = master.Write(buffer[:n])
+						if err != nil {
+							if quitted == false {
+								close(quit)
+								quitted = true
+							}
+							return err
+						}
+					}
+				}
+			}
+			return nil
+		}()
+	}()
+
+	go func() {
+		errs <- func() error {
+			for {
+				select {
+				case <-quit:
+					return nil
+				default:
+					{
+						buffer := make([]byte, 65536)
+						n, err := master.Read(buffer)
+						if err != nil {
+							if quitted == false {
+								close(quit)
+								quitted = true
+							}
+							return err
+						}
+
+						log.Println("master => slave", n)
+
+						_, err = slave.Write(buffer[:n])
+						if err != nil {
+							if quitted == false {
+								close(quit)
+								quitted = true
+							}
+							return err
+						}
+					}
+				}
+			}
+			return nil
+		}()
+	}()
+
+	return <-errs
+}
+
 func (cm *CMPair) Pipe() error {
 	errs := make(chan error, 2)
 
@@ -69,6 +149,7 @@ func (cm *CMPair) Pipe() error {
 		errs <- func() error {
 			buffer := make([]byte, cm.bufferSize)
 			for {
+				log.Println("master => buffer => client")
 				n, err := cm.master.Read(buffer)
 				if err != nil {
 					return ErrMasterClosed
@@ -87,6 +168,7 @@ func (cm *CMPair) Pipe() error {
 		errs <- func() error {
 			buffer := make([]byte, cm.bufferSize)
 			for {
+				log.Println("master <= buffer <= client")
 				n, err := cm.client.Read(buffer)
 				if err != nil {
 					return ErrClientClosed
@@ -104,6 +186,7 @@ func (cm *CMPair) Pipe() error {
 	go func() {
 		errs <- func() error {
 			for range time.Tick(time.Second) {
+				// log.Println("master <= ping <= client")
 				if err := cm.masterWrite([]byte{Ping}); err != nil {
 					return ErrMasterClosed
 				}
@@ -115,6 +198,7 @@ func (cm *CMPair) Pipe() error {
 	return <-errs
 }
 
+// Note: this piece of code is never used unless your client is written in Go...
 func (cm *CMPair) handleMasterReadEvent(data []byte) error {
 	if len(data) == 0 {
 		return errors.New("unexpected zero length read from master")
@@ -128,8 +212,15 @@ func (cm *CMPair) handleMasterReadEvent(data []byte) error {
 		if err := cm.clientWrite(data[1:]); err != nil {
 			return err //ors.Wrapf(err, "failed to write received data to slave")
 		}
+	case SlaveDead:
+		// notify client to close connection
+		// why not close on master side? because the Master interface doesn't expose such method
+		log.Println("slave -> SlaveDead -> master -> Client")
+		if err := cm.clientWrite([]byte{SlaveDead}); err != nil {
+			return err //ors.Wrapf(err, "failed to write received data to slave")
+		}
 	default:
-		return errors.New(fmt.Sprintf("unknown message type `%c`", data[0]))
+		return errors.New(fmt.Sprintf("CMPair::MasterRead: unknown message type `%c`", data[0]))
 	}
 	return nil
 }
@@ -216,6 +307,9 @@ func (ms *MSPair) Pipe() error {
 
 func (ms *MSPair) handleSlaveReadEvent(data []byte) error {
 	safeMessage := base64.StdEncoding.EncodeToString(data)
+	// if len(safeMessage) % 4 != 0 { }
+	log.Println("slave => master", len(safeMessage))
+	// println(safeMessage)
 	return ms.masterWrite(append([]byte{Output}, []byte(safeMessage)...))
 }
 
@@ -237,6 +331,8 @@ func (ms *MSPair) handleMasterReadEvent(data []byte) error {
 	if len(data) == 0 {
 		return errors.New("unexpected zero length read from master")
 	}
+
+	log.Println("master => slave", len(data))
 
 	switch data[0] {
 	case Input:
@@ -260,8 +356,11 @@ func (ms *MSPair) handleMasterReadEvent(data []byte) error {
 		}
 		ms.slave.ResizeTerminal(sz)
 		log.Println("new sz:", sz)
+	case ClientDead:
+		log.Println("ClientDead, kill slave")
+		return ms.slave.Kill()
 	default:
-		return errors.New(fmt.Sprintf("unknown message type `%c`", data[0]))
+		return errors.New(fmt.Sprintf("MSPair::MasterRead unknown message type `%c`", data[0]))
 	}
 
 	return nil
@@ -285,7 +384,10 @@ var (
 )
 
 const (
-	/* those message types are used when reading from master */
+	/*
+	   those message types are initiated by client(browser), sent to master,
+	   and eventually propagated to and handled by slave
+	*/
 	// Unknown message type, maybe sent by a bug
 	UnknownInput = '0'
 	// User input typically from a keyboard
@@ -295,13 +397,25 @@ const (
 	// Notify the server that the browser size has been changed, the server then tries to resize the slave tty
 	ResizeTerminal = '3'
 
-	/* those message types are used when writing to master */
+	// Client dead
+	ClientDead = '4'
+
+	// when the client(browser) closes, master is aware of it, but doesn't notify the slave to close
+	// when the slave process exists, slave is aware of it, but doesn't notify master/client(browser) to close connection
+
+	/*
+			   those message types are initiated by slave, sent to master,
+		           and eventually propagated to and handled by client(browser)
+	*/
 	// Unknown message type, maybe set by a bug
 	UnknownOutput = '0'
 	// Normal output from the slave tty
 	Output = '1'
 	// Pong to the master(browser)
 	Pong = '2'
+
+	// Slave dead
+	SlaveDead = '3'
 )
 
 ///errors.go
