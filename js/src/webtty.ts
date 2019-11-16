@@ -1,13 +1,20 @@
 export const protocols = ["webtty"];
 
+
+// initiated by client
 export const msgInputUnknown = '0';
 export const msgInput = '1';
 export const msgPing = '2';
 export const msgResizeTerminal = '3';
+// initiated by master
+export const msgClientDead = '4';
 
+// initiated by slave
 export const msgUnknownOutput = '0';
 export const msgOutput = '1';
 export const msgPong = '2';
+// initiated by master
+export const msgSlaveDead = '3';
 
 
 export interface Terminal {
@@ -84,9 +91,19 @@ export class WebTTY {
                 const payload = data.slice(1);
                 switch (data[0]) {
                     case msgOutput:
-                        this.term.output(payload);
+			try {
+				var str = atob(payload)
+				this.term.output(str);
+				console.log(payload.length)
+			} catch (e){
+				console.log(e)
+				console.log(payload.length, payload)
+			}
                         break;
                     case msgPong:
+                        break;
+                    case msgSlaveDead:
+			connection.close();
                         break;
                 }
             });
