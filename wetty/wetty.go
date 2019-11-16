@@ -3,7 +3,6 @@
 package wetty
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -70,13 +69,13 @@ func Pipe(master, slave io.ReadWriter) error {
 
 	go func() {
 		errs <- func() error {
+			buffer := make([]byte, 65536) // if you set it to 400, master will receive 399- bytes on each read
 			for {
 				select {
 				case <-quit:
 					return nil
 				default:
 					{
-						buffer := make([]byte, 65536) // if you set it to 400, master will receive 399- bytes on each read
 						n, err := slave.Read(buffer)
 						if err != nil {
 							if quitted == false {
@@ -86,7 +85,7 @@ func Pipe(master, slave io.ReadWriter) error {
 							return err
 						}
 
-						log.Println("master <= slave", n)
+						log.Println("Pipe: master <= slave", n)
 
 						_, err = master.Write(buffer[:n])
 						if err != nil {
@@ -105,13 +104,13 @@ func Pipe(master, slave io.ReadWriter) error {
 
 	go func() {
 		errs <- func() error {
+			buffer := make([]byte, 8192) // this is the maximum message size you can input at once from client/browser
 			for {
 				select {
 				case <-quit:
 					return nil
 				default:
 					{
-						buffer := make([]byte, 65536)
 						n, err := master.Read(buffer)
 						if err != nil {
 							if quitted == false {
@@ -121,7 +120,7 @@ func Pipe(master, slave io.ReadWriter) error {
 							return err
 						}
 
-						log.Println("master => slave", n)
+						log.Println("Pipe: master => slave", n)
 
 						_, err = slave.Write(buffer[:n])
 						if err != nil {
@@ -253,7 +252,7 @@ func NewMSPair(master Master, slave Slave) *MSPair {
 	return &MSPair{
 		master:     master,
 		slave:      slave,
-		bufferSize: 1024,
+		bufferSize: 101,
 	}
 }
 
@@ -306,11 +305,8 @@ func (ms *MSPair) Pipe() error {
 }
 
 func (ms *MSPair) handleSlaveReadEvent(data []byte) error {
-	safeMessage := base64.StdEncoding.EncodeToString(data)
-	// if len(safeMessage) % 4 != 0 { }
-	log.Println("slave => master", len(safeMessage))
-	// println(safeMessage)
-	return ms.masterWrite(append([]byte{Output}, []byte(safeMessage)...))
+	log.Println("slave => master", len(data))
+	return ms.masterWrite(append([]byte{Output}, data...))
 }
 
 func (ms *MSPair) masterWrite(data []byte) error {
@@ -376,10 +372,12 @@ var (
 		"webtty",
 	}
 	Dialer = &websocket.Dialer{
-		Subprotocols: Protocols,
+		Subprotocols:      Protocols,
+		EnableCompression: true,
 	}
 	Upgrader = &websocket.Upgrader{
-		Subprotocols: Protocols,
+		Subprotocols:      Protocols,
+		EnableCompression: true,
 	}
 )
 

@@ -24,7 +24,7 @@ type WsWrapper struct {
 }
 
 func (wsw *WsWrapper) Write(p []byte) (n int, err error) {
-	writer, err := wsw.Conn.NextWriter(websocket.TextMessage)
+	writer, err := wsw.Conn.NextWriter(websocket.BinaryMessage)
 	if err != nil {
 		return 0, err
 	}
@@ -39,7 +39,7 @@ func (wsw *WsWrapper) Read(p []byte) (int, error) {
 			return 0, err
 		}
 
-		if msgType != websocket.TextMessage {
+		if msgType != websocket.BinaryMessage {
 			continue
 		}
 

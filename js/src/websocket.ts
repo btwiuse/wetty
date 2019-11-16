@@ -12,11 +12,16 @@ export class ConnectionFactory {
     };
 }
 
+function ab2str(buf) {
+  return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
+
 export class Connection {
     ws: WebSocket;
 
     constructor(url: string, protocols: string[]) {
         this.ws = new WebSocket(url, protocols);
+        this.ws.binaryType = 'arraybuffer';
     }
 
     open() {
@@ -29,7 +34,8 @@ export class Connection {
     };
 
     send(data: string) {
-        this.ws.send(data);
+        this.ws.send(new TextEncoder().encode(data));
+        console.log("send", data);
     };
 
     isOpen(): boolean {
@@ -48,7 +54,7 @@ export class Connection {
 
     onReceive(callback: (data: string) => void) {
         this.ws.onmessage = (event) => {
-            callback(event.data);
+            callback(ab2str(event.data));
         }
     };
 

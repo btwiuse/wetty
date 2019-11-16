@@ -90,15 +90,7 @@ export class WebTTY {
                 const payload = data.slice(1);
                 switch (data[0]) {
                     case msgOutput:
-			try {
-				// var str = atob(payload)
-				// this.term.output(str);
-				this.term.output(payload);
-				console.log(payload.length)
-			} catch (e){
-				console.log(e)
-				console.log(payload.length, payload)
-			}
+			this.term.output(payload);
                         break;
                     case msgPong:
                         break;

@@ -3,16 +3,8 @@ import { FitAddon } from 'xterm-addon-fit';
 import { UTF8Decoder } from 'libdot';
 
 // https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
-// function b64DecodeUnicode(str) {
-
-/*
-function Uatob(str) {
-    // Going backwards: from bytestream, to percent-encoding, to original string.
-    return decodeURIComponent(atob(str).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-}
-*/
+// the Uatob solution works well except when you receive only part of a multi-byte character
+// that's why we need UTF8Decoder
 
 export class Xterm {
     elem: HTMLElement;
@@ -58,9 +50,7 @@ export class Xterm {
     };
 
     output(data: string) {
-        // console.log(data, Uatob(data));
-        // this.term.write(Uatob(data));
-        this.term.write(this.decoder.decode(atob(data)));
+        this.term.write(this.decoder.decode(data));
     };
 
     showMessage(message: string, timeout: number) {
