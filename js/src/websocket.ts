@@ -21,6 +21,7 @@ export class Connection {
 
     open() {
         // nothing todo for websocket
+	console.log("binaryType = ", this.ws.binaryType);
     };
 
     close() {
