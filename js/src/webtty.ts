@@ -91,8 +91,9 @@ export class WebTTY {
                 switch (data[0]) {
                     case msgOutput:
 			try {
-				var str = atob(payload)
-				this.term.output(str);
+				// var str = atob(payload)
+				// this.term.output(str);
+				this.term.output(payload);
 				console.log(payload.length)
 			} catch (e){
 				console.log(e)

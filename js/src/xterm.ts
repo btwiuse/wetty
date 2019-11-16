@@ -58,10 +58,9 @@ export class Xterm {
     };
 
     output(data: string) {
-        // console.log(data);
-        // console.log(Uatob(data));
+        // console.log(data, Uatob(data));
         // this.term.write(Uatob(data));
-        this.term.write(this.decoder.decode(data));
+        this.term.write(this.decoder.decode(atob(data)));
     };
 
     showMessage(message: string, timeout: number) {
