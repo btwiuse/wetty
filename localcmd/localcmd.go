@@ -22,7 +22,7 @@ func (factory *Factory) New() (*Lc, error) {
 	return NewLc(args)
 }
 
-// Lc implements the server.Slave interface {io.ReadWriteCloser,ResizeTerminal()}
+// Lc implements the server.Slave interface {io.ReadWriteCloser,ResizeTerminal(),Kill()}
 type Lc struct {
 	cmd       *exec.Cmd
 	pty       *os.File
@@ -90,4 +90,8 @@ func (lcmd *Lc) ResizeTerminal(sz *pty.Winsize) error {
 		return errno
 	}
 	return nil
+}
+
+func (lcmd *Lc) Kill() error {
+	return lcmd.cmd.Process.Kill()
 }
