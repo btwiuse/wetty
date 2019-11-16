@@ -2,6 +2,8 @@ package utils
 
 import (
 	"io"
+	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/gorilla/websocket"
@@ -30,7 +32,7 @@ func (wsw *WsWrapper) Write(p []byte) (n int, err error) {
 	return writer.Write(p)
 }
 
-func (wsw *WsWrapper) Read(p []byte) (n int, err error) {
+func (wsw *WsWrapper) Read(p []byte) (int, error) {
 	for {
 		msgType, reader, err := wsw.Conn.NextReader()
 		if err != nil {
@@ -41,7 +43,18 @@ func (wsw *WsWrapper) Read(p []byte) (n int, err error) {
 			continue
 		}
 
-		return reader.Read(p)
+		// n, err := reader.Read(p)
+		all, err := ioutil.ReadAll(reader)
+		// if len(rem) != 0 {
+		//	log.Println("REMAINING BUF NOT READ:", err2)
+		// }
+		copy(p, all)
+		n := len(all)
+		if len(all) > len(p) {
+			n = len(p)
+			log.Println("NOT ALL BYTES ARE COPIED")
+		}
+		return n, err
 	}
 }
 
