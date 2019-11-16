@@ -1,4 +1,7 @@
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+// https://stackoverflow.com/questions/43870615/minification-for-es6-code-in-webpack-using-babel
+// https://github.com/verlok/lazyload/issues/259
+// const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const MinifyPlugin = require('babel-minify-webpack-plugin');
 
 module.exports = {
     entry: "./src/main.ts",
@@ -24,6 +27,6 @@ module.exports = {
         ]
     },
     plugins: [
-        new UglifyJSPlugin()
+        new MinifyPlugin()
     ]
 };

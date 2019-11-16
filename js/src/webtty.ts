@@ -1,6 +1,5 @@
 export const protocols = ["webtty"];
 
-
 // initiated by client
 export const msgInputUnknown = '0';
 export const msgInput = '1';
