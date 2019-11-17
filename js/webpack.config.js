@@ -6,7 +6,7 @@ const MinifyPlugin = require('babel-minify-webpack-plugin');
 module.exports = {
     entry: "./src/main.ts",
     output: {
-        filename: "./gotty-bundle.js"
+        filename: "./wetty-bundle.js"
     },
     devtool: "source-map",
     resolve: {

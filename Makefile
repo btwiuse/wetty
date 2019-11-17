@@ -3,19 +3,19 @@ OUTPUT_DIR = ./builds
 client: main.go client/*.go 
 	goimports -w .
 	go install .
-	go build -o gotty-client
+	go build -o wetty-client
 
-gotty: main.go server/*.go wetty/*.go localcmd/*.go Makefile
+wetty: main.go server/*.go wetty/*.go localcmd/*.go Makefile
 	go install .
 
 .PHONY: asset
-asset: bindata/static/js/gotty-bundle.js bindata/static/index.html bindata/static/favicon.ico bindata/static/css/index.css bindata/static/css/xterm.css bindata/static/css/xterm_customize.css
+asset: bindata/static/js/wetty-bundle.js bindata/static/index.html bindata/static/favicon.ico bindata/static/css/index.css bindata/static/css/xterm.css bindata/static/css/xterm_customize.css
 	# go-bindata -prefix bindata -pkg server -ignore=\\.gitkeep -o server/asset.go bindata/...
 	# gofmt -w server/asset.go
 	assets -d ./bindata/static -package assets -o ./assets/assets.go -map Assets
 
-.PHONY: all client gotty
-all: asset gotty client
+.PHONY: all client wetty
+all: asset wetty client
 	goimports -w .
 
 bindata:
@@ -34,8 +34,8 @@ bindata/static/js: bindata/static
 	mkdir -p bindata/static/js
 
 
-bindata/static/js/gotty-bundle.js: bindata/static/js js/dist/gotty-bundle.js
-	cp js/dist/gotty-bundle.js bindata/static/js/gotty-bundle.js
+bindata/static/js/wetty-bundle.js: bindata/static/js js/dist/wetty-bundle.js
+	cp js/dist/wetty-bundle.js bindata/static/js/wetty-bundle.js
 
 bindata/static/css: bindata/static
 	mkdir -p bindata/static/css
@@ -53,7 +53,7 @@ js/node_modules/xterm/css/xterm.css:
 	cd js && \
 	npm install
 
-js/dist/gotty-bundle.js: js/src/* js/node_modules/webpack
+js/dist/wetty-bundle.js: js/src/* js/node_modules/webpack
 	cd js && \
 	`npm bin`/webpack
 
@@ -74,10 +74,10 @@ cross_compile:
 
 targz:
 	mkdir -p ${OUTPUT_DIR}/dist
-	cd ${OUTPUT_DIR}/pkg/; for osarch in *; do (cd $$osarch; tar zcvf ../../dist/gotty_${VERSION}_$$osarch.tar.gz ./*); done;
+	cd ${OUTPUT_DIR}/pkg/; for osarch in *; do (cd $$osarch; tar zcvf ../../dist/wetty_${VERSION}_$$osarch.tar.gz ./*); done;
 
 shasums:
 	cd ${OUTPUT_DIR}/dist; sha256sum * > ./SHA256SUMS
 
 release:
-	ghr -c ${GIT_COMMIT} --delete --prerelease -u yudai -r gotty pre-release ${OUTPUT_DIR}/dist
+	ghr -c ${GIT_COMMIT} --delete --prerelease -u yudai -r wetty pre-release ${OUTPUT_DIR}/dist
