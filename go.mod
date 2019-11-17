@@ -1,4 +1,4 @@
-module github.com/btwiuse/gotty
+module github.com/btwiuse/wetty
 
 go 1.12
 

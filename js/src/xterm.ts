@@ -39,7 +39,7 @@ export class Xterm {
         this.resizeListener();
         window.addEventListener("resize", () => { this.resizeListener(); });
 
-        this.decoder = new UTF8Decoder()
+        this.decoder = new UTF8Decoder();
 
         this.term.loadAddon(this.fit)
         this.fit.fit();

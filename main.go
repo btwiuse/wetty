@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/btwiuse/gotty/client"
-	"github.com/btwiuse/gotty/server"
+	"github.com/btwiuse/wetty/client"
+	"github.com/btwiuse/wetty/server"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 
 	// server mode
 	if len(args) == 0 {
-		log.Fatalln("usage: gotty [command] [args]...")
+		log.Fatalln("usage: wetty [command] [args]...")
 	}
 
 	log.Printf("GoTTY is starting with command: %s", strings.Join(args, " "))

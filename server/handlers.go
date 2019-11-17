@@ -10,9 +10,9 @@ import (
 	"github.com/gorilla/handlers"
 	"modernc.org/httpfs"
 
-	"github.com/btwiuse/gotty/assets"
-	"github.com/btwiuse/gotty/utils"
-	"github.com/btwiuse/gotty/wetty"
+	"github.com/btwiuse/wetty/assets"
+	"github.com/btwiuse/wetty/utils"
+	"github.com/btwiuse/wetty/wetty"
 )
 
 func (server *Server) setupHandlers(pathPrefix string) http.Handler {
