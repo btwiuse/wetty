@@ -43,6 +43,9 @@ export class Xterm {
 
         this.term.loadAddon(this.fit)
         this.fit.fit();
+        this.term.onSelectionChange(() => {
+            console.log("onSelectionChange:", this.term.getSelection());
+        });
     };
 
     info(): { columns: number, rows: number } {
@@ -77,7 +80,6 @@ export class Xterm {
         this.term.onData((data) => {
             callback(data);
         });
-
     };
 
     onResize(callback: (colmuns: number, rows: number) => void) {
