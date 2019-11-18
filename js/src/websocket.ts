@@ -26,16 +26,14 @@ export class Connection {
 
     open() {
         // nothing todo for websocket
-	console.log("binaryType = ", this.ws.binaryType);
     };
 
     close() {
         this.ws.close();
     };
 
-    send(data: string) {
-        this.ws.send(new TextEncoder().encode(data));
-        console.log("send", data);
+    send(msgType: number, data: string) {
+        this.ws.send(new TextEncoder().encode(String.fromCharCode(msgType)+data));
     };
 
     isOpen(): boolean {

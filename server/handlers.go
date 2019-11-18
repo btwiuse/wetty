@@ -56,12 +56,5 @@ func (server *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer slave.Close()
 	err = wetty.NewMSPair(master, slave).Pipe()
-	switch err {
-	case wetty.ErrSlaveClosed:
-		closeReason = "local command"
-	case wetty.ErrMasterClosed:
-		closeReason = "client"
-	default:
-		closeReason = fmt.Sprintf("an error: %s", err)
-	}
+	closeReason = fmt.Sprintf("an error: %s", err)
 }

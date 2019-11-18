@@ -23,24 +23,29 @@ func (wsw *WsWrapper) Write(p []byte) (n int, err error) {
 }
 
 func (wsw *WsWrapper) Read(buf []byte) (int, error) {
-	_, reader, err := wsw.Conn.NextReader()
-	if err != nil {
-		return 0, err
+	for {
+		msgType, reader, err := wsw.Conn.NextReader()
+		if err != nil {
+			return 0, err
+		}
+		if msgType != websocket.BinaryMessage {
+			continue
+		}
+
+		msg, err := ioutil.ReadAll(reader)
+		if err != nil {
+			return 0, err
+		}
+
+		copy(buf, msg)
+
+		n := len(msg)
+		if n > len(buf) {
+			n = len(buf)
+		}
+
+		return n, nil
 	}
-
-	msg, err := ioutil.ReadAll(reader)
-	if err != nil {
-		return 0, err
-	}
-
-	copy(buf, msg)
-
-	n := len(msg)
-	if n > len(buf) {
-		n = len(buf)
-	}
-
-	return n, nil
 }
 
 // ReadWriter stores pointers to a Reader and a Writer.
