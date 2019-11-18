@@ -5,27 +5,27 @@ import (
 	"os"
 	"strings"
 
-	"github.com/btwiuse/wetty/client"
+	// "github.com/btwiuse/wetty/client"
 	"github.com/btwiuse/wetty/server"
 )
 
 func main() {
-	exe, err := os.Executable()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	args := os.Args[1:]
-
 	// client mode
-	if strings.HasSuffix(exe, "client") {
-		if err := client.New("ws://localhost:8080/ws").Run(); err != nil {
-			log.Fatalln(err)
-		}
-		os.Exit(0)
-	}
+
+	//exe, err := os.Executable()
+	//if err != nil {
+	//	log.Fatalln(err)
+	//}
+	//if strings.HasSuffix(exe, "client") {
+	//	if err := client.New("ws://localhost:8080/ws").Run(); err != nil {
+	//		log.Fatalln(err)
+	//	}
+	//	os.Exit(0)
+	//}
 
 	// server mode
+
+	args := os.Args[1:]
 	if len(args) == 0 {
 		log.Fatalln("usage: wetty [command] [args]...")
 	}

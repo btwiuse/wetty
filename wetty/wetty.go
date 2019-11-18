@@ -43,6 +43,7 @@ type (
 	Master interface {
 		io.Reader
 		io.Writer
+		io.Closer
 	}
 
 	Slave interface {
@@ -50,7 +51,6 @@ type (
 		io.Writer
 		io.Closer
 		ResizeTerminal(*pty.Winsize) error
-		Kill() error
 	}
 
 	// WeTTY bridges a PTY slave and its PTY master.
@@ -66,79 +66,28 @@ type (
 )
 
 // here master and slave are connected via network
-func Pipe(master, slave io.ReadWriter) error {
+func Pipe(master, slave io.ReadWriteCloser) error {
 	errs := make(chan error, 2)
-
-	quit := make(chan interface{})
-	quitted := false
+	closeall := func() {
+		master.Close()
+		slave.Close()
+	}
 
 	go func() {
-		errs <- func() error {
-			// if you set it to 400, master will receive 399- bytes on each read
-			// this value should at least MSPair.bufferSize + 1
-			// otherwise some messages may be partially sent
-			buffer := make([]byte, 8192)
-			for {
-				select {
-				case <-quit:
-					return nil
-				default:
-					n, err := slave.Read(buffer)
-					if err != nil {
-						if quitted == false {
-							close(quit)
-							quitted = true
-						}
-						return err
-					}
-
-					log.Println("Pipe: master <= slave", n)
-
-					_, err = master.Write(buffer[:n])
-					if err != nil {
-						if quitted == false {
-							close(quit)
-							quitted = true
-						}
-						return err
-					}
-				}
-			}
-			return nil
-		}()
+		log.Println("Pipe: master <= slave")
+		defer closeall()
+		_, err := io.Copy(master, slave)
+		errs <- err
+		// if you set it to 400, master will receive 399- bytes on each read
+		// this value should at least MSPair.bufferSize + 1
+		// otherwise some messages may be partially sent
 	}()
 
 	go func() {
-		errs <- func() error {
-			buffer := make([]byte, 8192) // this is the maximum message size you can input at once from client/browser
-			for {
-				select {
-				case <-quit:
-					return nil
-				default:
-					n, err := master.Read(buffer)
-					if err != nil {
-						if quitted == false {
-							close(quit)
-							quitted = true
-						}
-						return err
-					}
-
-					log.Println("Pipe: master => slave", n)
-
-					_, err = slave.Write(buffer[:n])
-					if err != nil {
-						if quitted == false {
-							close(quit)
-							quitted = true
-						}
-						return err
-					}
-				}
-			}
-			return nil
-		}()
+		log.Println("Pipe: master => slave")
+		defer closeall()
+		_, err := io.Copy(slave, master)
+		errs <- err
 	}()
 
 	return <-errs
@@ -204,7 +153,7 @@ func (ms *MSPair) Pipe() error {
 				}
 				log.Println("new sz:", sz)
 			case ClientDead: // written by master itself
-				err = ms.slave.Kill()
+				err = ms.slave.Close()
 				if err != nil {
 					return err
 				}

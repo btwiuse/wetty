@@ -91,7 +91,3 @@ func (lcmd *Lc) ResizeTerminal(sz *pty.Winsize) error {
 	}
 	return nil
 }
-
-func (lcmd *Lc) Kill() error {
-	return lcmd.cmd.Process.Kill()
-}
