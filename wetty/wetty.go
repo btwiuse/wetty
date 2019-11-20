@@ -56,6 +56,13 @@ type (
 	// WeTTY bridges a PTY slave and its PTY master.
 	// To support text-based streams and side channel commands such as
 	// terminal resizing, WeTTY uses an original protocol.
+
+	// todo: maybe move the locks to utils.WsWrapper package to tidy things up?
+	/* http://www.gorillatoolkit.org/pkg/websocket
+	Connections support one concurrent reader and one concurrent writer.
+
+	Applications are responsible for ensuring that no more than one goroutine calls the write methods (NextWriter, SetWriteDeadline, WriteMessage, WriteJSON, EnableWriteCompression, SetCompressionLevel) concurrently and that no more than one goroutine calls the read methods (NextReader, SetReadDeadline, ReadMessage, ReadJSON, SetPongHandler, SetPingHandler) concurrently.
+	*/
 	MSPair struct {
 		mu         sync.Mutex // guards writes to master
 		mu2        sync.Mutex // guards writes to slave
