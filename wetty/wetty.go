@@ -62,34 +62,6 @@ type (
 	}
 )
 
-// here master and slave are connected via network
-func Pipe(client, slave io.ReadWriteCloser) error {
-	errs := make(chan error, 2)
-	closeall := func() {
-		client.Close()
-		slave.Close()
-	}
-
-	go func() {
-		log.Println("Pipe: client <= slave")
-		defer closeall()
-		_, err := io.Copy(client, slave)
-		errs <- err
-		// if you set it to 400, master will receive 399- bytes on each read
-		// this value should at least CSPair.bufferSize + 1
-		// otherwise some messages may be partially sent
-	}()
-
-	go func() {
-		log.Println("Pipe: client => slave")
-		defer closeall()
-		_, err := io.Copy(slave, client)
-		errs <- err
-	}()
-
-	return <-errs
-}
-
 ///wetty.go
 
 // New creates a new instance of WeTTY.
