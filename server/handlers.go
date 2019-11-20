@@ -47,7 +47,7 @@ func (server *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	var master wetty.Master = utils.WsConnToReadWriter(conn)
+	var client wetty.Client = utils.WsConnToReadWriter(conn)
 	var slave wetty.Slave
 	slave, err = server.factory.New()
 	if err != nil {
@@ -55,6 +55,6 @@ func (server *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer slave.Close()
-	err = wetty.NewMSPair(master, slave).Pipe()
+	err = wetty.NewCSPair(client, slave).Pipe()
 	closeReason = fmt.Sprintf("an error: %s", err)
 }

@@ -39,7 +39,7 @@ var (
 )
 
 type (
-	Master interface {
+	Client interface {
 		io.Reader
 		io.Writer
 		io.Closer
@@ -55,35 +55,35 @@ type (
 	// WeTTY bridges a PTY slave and its PTY master.
 	// To support text-based streams and side channel commands such as
 	// terminal resizing, WeTTY uses an original protocol.
-	MSPair struct {
-		master     Master // PTY Master, which probably a connection to browser
+	CSPair struct {
+		client     Client // PTY Master, which probably a connection to browser
 		slave      Slave  // PTY Slave
 		bufferSize int
 	}
 )
 
 // here master and slave are connected via network
-func Pipe(master, slave io.ReadWriteCloser) error {
+func Pipe(client, slave io.ReadWriteCloser) error {
 	errs := make(chan error, 2)
 	closeall := func() {
-		master.Close()
+		client.Close()
 		slave.Close()
 	}
 
 	go func() {
-		log.Println("Pipe: master <= slave")
+		log.Println("Pipe: client <= slave")
 		defer closeall()
-		_, err := io.Copy(master, slave)
+		_, err := io.Copy(client, slave)
 		errs <- err
 		// if you set it to 400, master will receive 399- bytes on each read
-		// this value should at least MSPair.bufferSize + 1
+		// this value should at least CSPair.bufferSize + 1
 		// otherwise some messages may be partially sent
 	}()
 
 	go func() {
-		log.Println("Pipe: master => slave")
+		log.Println("Pipe: client => slave")
 		defer closeall()
-		_, err := io.Copy(slave, master)
+		_, err := io.Copy(slave, client)
 		errs <- err
 	}()
 
@@ -96,21 +96,21 @@ func Pipe(master, slave io.ReadWriteCloser) error {
 // masterConn is a connection to the PTY master,
 // typically it's a websocket connection to a client.
 // slave is a PTY slave such as a local command with a PTY.
-func NewMSPair(master Master, slave Slave) *MSPair {
-	return &MSPair{
-		master:     master,
+func NewCSPair(client Client, slave Slave) *CSPair {
+	return &CSPair{
+		client:     client,
 		slave:      slave,
 		bufferSize: 4096, // this means max websocket message size will be 4096 + 1(msgType)
 	}
 }
 
-// when to call MSPair, who calls it?
+// when to call CSPair, who calls it?
 // from the perspective of master/server
-func (ms *MSPair) Pipe() error {
+func (ms *CSPair) Pipe() error {
 	errs := make(chan error, 2)
 	// slave >>>{ Output }>>> master >>> client
 	// partition raw output in to frames with Output header
-	slave2master := func() error {
+	slave2client := func() error {
 		buffer := make([]byte, ms.bufferSize)
 		for {
 			n, err := ms.slave.Read(buffer)
@@ -118,17 +118,17 @@ func (ms *MSPair) Pipe() error {
 				return err
 			}
 
-			_, err = ms.master.Write(append([]byte{Output}, buffer[:n]...))
+			_, err = ms.client.Write(append([]byte{Output}, buffer[:n]...))
 			if err != nil {
 				return err
 			}
 		}
 	}
 	// slave <<<{ ClientDead }<<< master <<<{ ResizeTerminal, Input }<<< client
-	master2slave := func() error {
+	client2slave := func() error {
 		buffer := make([]byte, ms.bufferSize)
 		for {
-			n, err := ms.master.Read(buffer)
+			n, err := ms.client.Read(buffer)
 			if err != nil {
 				return err
 			}
@@ -149,7 +149,7 @@ func (ms *MSPair) Pipe() error {
 					return err
 				}
 				log.Println("new sz:", sz)
-			case ClientDead: // written by master itself
+			case ClientDead: // written by server itself
 				err = ms.slave.Close()
 				if err != nil {
 					return err
@@ -159,14 +159,14 @@ func (ms *MSPair) Pipe() error {
 		}
 	}
 
-	// slave => buffer => master
+	// slave => buffer => client
 	go func() {
-		errs <- slave2master()
+		errs <- slave2client()
 	}()
 
-	// slave <= buffer <= master
+	// slave <= buffer <= client
 	go func() {
-		errs <- master2slave()
+		errs <- client2slave()
 	}()
 
 	return <-errs
