@@ -64,6 +64,10 @@ func (wsw *WsWrapper) Read(buf []byte) (int, error) {
 	}
 }
 
+func (wsw *WsWrapper) Close() error {
+	return wsw.Conn.Close()
+}
+
 // ReadWriter stores pointers to a Reader and a Writer.
 // It implements io.ReadWriter automatically
 type ReadWriter struct {
