@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"io"
 	"log"
-	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/kr/pty"
@@ -56,18 +55,9 @@ type (
 	// WeTTY bridges a PTY slave and its PTY master.
 	// To support text-based streams and side channel commands such as
 	// terminal resizing, WeTTY uses an original protocol.
-
-	// todo: maybe move the locks to utils.WsWrapper package to tidy things up?
-	/* http://www.gorillatoolkit.org/pkg/websocket
-	Connections support one concurrent reader and one concurrent writer.
-
-	Applications are responsible for ensuring that no more than one goroutine calls the write methods (NextWriter, SetWriteDeadline, WriteMessage, WriteJSON, EnableWriteCompression, SetCompressionLevel) concurrently and that no more than one goroutine calls the read methods (NextReader, SetReadDeadline, ReadMessage, ReadJSON, SetPongHandler, SetPingHandler) concurrently.
-	*/
 	MSPair struct {
-		mu         sync.Mutex // guards writes to master
-		mu2        sync.Mutex // guards writes to slave
-		master     Master     // PTY Master, which probably a connection to browser
-		slave      Slave      // PTY Slave
+		master     Master // PTY Master, which probably a connection to browser
+		slave      Slave  // PTY Slave
 		bufferSize int
 	}
 )
@@ -128,7 +118,7 @@ func (ms *MSPair) Pipe() error {
 				return err
 			}
 
-			err = ms.masterSafeWrite(append([]byte{Output}, buffer[:n]...))
+			_, err = ms.master.Write(append([]byte{Output}, buffer[:n]...))
 			if err != nil {
 				return err
 			}
@@ -144,7 +134,7 @@ func (ms *MSPair) Pipe() error {
 			}
 			switch msgType := buffer[0]; msgType {
 			case Input: // written by client
-				err = ms.slaveSafeWrite(buffer[1:n])
+				_, err = ms.slave.Write(buffer[1:n])
 				if err != nil {
 					return err
 				}
@@ -180,18 +170,4 @@ func (ms *MSPair) Pipe() error {
 	}()
 
 	return <-errs
-}
-
-func (ms *MSPair) masterSafeWrite(data []byte) error {
-	ms.mu.Lock()
-	defer ms.mu.Unlock()
-	_, err := ms.master.Write(data)
-	return err
-}
-
-func (ms *MSPair) slaveSafeWrite(data []byte) error {
-	ms.mu2.Lock()
-	defer ms.mu2.Unlock()
-	_, err := ms.slave.Write(data)
-	return err
 }

@@ -3,17 +3,33 @@ package utils
 import (
 	"io"
 	"io/ioutil"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
+
+/* http://www.gorillatoolkit.org/pkg/websocket
+Connections support one concurrent reader and one concurrent writer.
+
+Applications are responsible for ensuring that no more than one goroutine calls the write methods (NextWriter, SetWriteDeadline, WriteMessage, WriteJSON, EnableWriteCompression, SetCompressionLevel) concurrently and that no more than one goroutine calls the read methods (NextReader, SetReadDeadline, ReadMessage, ReadJSON, SetPongHandler, SetPingHandler) concurrently.
+*/
+
+func WsConnToReadWriter(c *websocket.Conn) *WsWrapper {
+	ret := new(WsWrapper)
+	ret.Conn = c
+	return ret
+}
 
 // WsWrapper makes a io.ReadWriter from websocket.Conn, implementing the wetty.Master interface
 // it is fed to wetty.New to create a WeTTY, bridging the websocket.Conn and local command
 type WsWrapper struct {
 	*websocket.Conn
+	mu sync.Mutex
 }
 
 func (wsw *WsWrapper) Write(p []byte) (n int, err error) {
+	wsw.mu.Lock()
+	defer wsw.mu.Unlock()
 	writer, err := wsw.Conn.NextWriter(websocket.BinaryMessage)
 	if err != nil {
 		return 0, err
