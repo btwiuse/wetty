@@ -3,6 +3,8 @@ package utils
 import (
 	"io"
 	"io/ioutil"
+	"log"
+	"net"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -73,4 +75,29 @@ func (wsw *WsWrapper) Close() error {
 type ReadWriter struct {
 	io.Reader
 	io.Writer
+}
+
+// single listener converts/upgrades the current tcp connection into grpc
+// ============================= gender changer impl
+type SingleListener struct {
+	net.Conn
+}
+
+// SingleListener implements the net.Listener interface
+func (s *SingleListener) Accept() (net.Conn, error) {
+	if s.Conn != nil {
+		log.Println("Gender Change: TCP Client -> GRPC Server")
+		c := s.Conn
+		s.Conn = nil
+		return c, nil
+	}
+	return nil, io.EOF
+}
+
+func (s *SingleListener) Close() error {
+	return nil
+}
+
+func (s *SingleListener) Addr() net.Addr {
+	return s.Conn.LocalAddr()
 }
