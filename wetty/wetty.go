@@ -21,6 +21,17 @@ const (
 	SlaveDead             //                 Master/Server -> Client/Browser
 )
 
+func IotaString(t byte) string {
+	m := map[byte]string{
+		Input:          "Input",
+		Output:         "Output",
+		ResizeTerminal: "ResizeTerminal",
+		ClientDead:     "ClientDead",
+		SlaveDead:      "SlaveDead",
+	}
+	return m[t]
+}
+
 // Protocols defines the name of this protocol,
 // which is supposed to be used to the subprotocol of Websockt streams.
 // https://stackoverflow.com/questions/37984320/why-doesnt-golang-allow-const-maps
