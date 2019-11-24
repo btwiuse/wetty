@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	// "github.com/btwiuse/wetty/client"
-	"github.com/btwiuse/wetty/server"
+	"github.com/btwiuse/wetty/pkg/server"
 )
 
 func main() {

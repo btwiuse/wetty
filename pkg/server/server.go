@@ -5,7 +5,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/btwiuse/wetty/localcmd"
+	"github.com/btwiuse/wetty/pkg/localcmd"
 )
 
 // Server provides a wetty HTTP endpoint.

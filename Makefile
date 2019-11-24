@@ -5,14 +5,14 @@ client: main.go client/*.go
 	go install .
 	go build -o wetty-client
 
-wetty: main.go server/*.go wetty/*.go localcmd/*.go Makefile
+wetty: main.go pkg/* Makefile
 	go install .
 
 .PHONY: asset
 asset: bindata/static/js/wetty-bundle.js bindata/static/index.html bindata/static/favicon.ico bindata/static/css/index.css bindata/static/css/xterm.css bindata/static/css/xterm_customize.css
 	# go-bindata -prefix bindata -pkg server -ignore=\\.gitkeep -o server/asset.go bindata/...
 	# gofmt -w server/asset.go
-	assets -d ./bindata/static -package assets -o ./assets/assets.go -map Assets
+	assets -d ./bindata/static -package assets -o ./pkg/assets/assets.go -map Assets
 
 .PHONY: all client wetty
 all: asset wetty client

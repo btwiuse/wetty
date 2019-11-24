@@ -10,9 +10,9 @@ import (
 	"github.com/gorilla/handlers"
 	"modernc.org/httpfs"
 
-	"github.com/btwiuse/wetty/assets"
-	"github.com/btwiuse/wetty/utils"
-	"github.com/btwiuse/wetty/wetty"
+	"github.com/btwiuse/wetty/pkg/assets"
+	"github.com/btwiuse/wetty/pkg/utils"
+	"github.com/btwiuse/wetty/pkg/wetty"
 )
 
 func (server *Server) setupHandlers(pathPrefix string) http.Handler {
@@ -48,13 +48,13 @@ func (server *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	var client wetty.Client = utils.WsConnToReadWriter(conn)
-	var slave wetty.Slave
-	slave, err = server.factory.New()
+	var session wetty.Session
+	session, err = server.factory.New()
 	if err != nil {
-		closeReason = "slave creation failed"
+		closeReason = "session creation failed"
 		return
 	}
-	defer slave.Close()
-	err = wetty.NewCSPair(client, slave).Pipe()
+	defer session.Close()
+	err = wetty.NewClientSessionPair(client, session).Pipe()
 	closeReason = fmt.Sprintf("an error: %s", err)
 }

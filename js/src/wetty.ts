@@ -1,10 +1,10 @@
 export const protocols = ["wetty"];
 
-const	msgInput          = 0;   // SlaveFactory <- Master/Server <- Client/Browser
-const	msgOutput         = 1;   // SlaveFactory -> Master/Server -> Client/Browser
-const	msgResizeTerminal = 2;   // SlaveFactory <- Master/Server <- Client/Browser
-//const	msgClientDead     = 3;   // SlaveFactory <- Master/Server
-const	msgSlaveDead      = 4;   //                 Master/Server -> Client/Browser
+const	msgClientInput   = 0;   // SlaveFactory <- Master/Server <- Client/Browser
+const	msgSessionOutput = 1;   // SlaveFactory -> Master/Server -> Client/Browser
+const	msgSessionResize = 2;   // SlaveFactory <- Master/Server <- Client/Browser
+//const	msgSessionClose  = 3;   // SlaveFactory <- Master/Server <- Client/Browser
+const	msgClientClose   = 4;   //                 Master/Server -> Client/Browser
 
 export interface Terminal {
     info(): { columns: number, rows: number };
@@ -51,7 +51,7 @@ export class WeTTY {
                 const termInfo = this.term.info();
 
                 const resizeHandler = (colmuns: number, rows: number) => {
-                    connection.send(msgResizeTerminal,
+                    connection.send(msgSessionResize,
                         JSON.stringify(
                             {
                                 "Cols": colmuns,
@@ -66,7 +66,7 @@ export class WeTTY {
 
                 this.term.onInput(
                     (input: string) => {
-                        connection.send(msgInput, input);
+                        connection.send(msgClientInput, input);
                     }
                 );
             });
@@ -74,10 +74,10 @@ export class WeTTY {
             connection.onReceive((data) => {
                 const payload = data.slice(1);
                 switch (data[0].charCodeAt(0)) {
-                    case msgOutput:
+                    case msgSessionOutput:
 			this.term.output(payload);
                         break;
-                    case msgSlaveDead:
+                    case msgClientClose:
 			connection.close();
                         break;
                 }
