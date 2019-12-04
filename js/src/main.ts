@@ -1,4 +1,4 @@
-import {lib} from "libapps";
+import { lib } from "libapps";
 import { Xterm } from "./xterm";
 import { Hterm } from "./hterm";
 import { Terminal, WeTTY, protocols } from "./wetty";

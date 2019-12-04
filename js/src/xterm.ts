@@ -1,4 +1,5 @@
 import { Terminal } from "xterm";
+import { WebglAddon } from 'xterm-addon-webgl';
 import { FitAddon } from 'xterm-addon-fit';
 import { UTF8Decoder } from 'libdot';
 
@@ -10,13 +11,13 @@ export class Xterm {
     elem: HTMLElement;
     term: Terminal;
     fit: FitAddon;
+    webgl: WebglAddon;
     resizeListener: () => void;
     decoder: UTF8Decoder;
 
     message: HTMLElement;
     messageTimeout: number;
     messageTimer: number;
-
 
     constructor(elem: HTMLElement) {
         this.elem = elem;
@@ -25,6 +26,8 @@ export class Xterm {
             allowTransparency: true
         });
         this.fit = new FitAddon();
+        this.webgl = new WebglAddon();
+        this.decoder = new UTF8Decoder();
 
         this.message = elem.ownerDocument.createElement("div");
         this.message.className = "xterm-overlay";
@@ -38,13 +41,14 @@ export class Xterm {
         };
 
         this.term.open(elem);
+
+        this.term.loadAddon(this.webgl); // Cannot activate WebglRendererAddon before Terminal.open
+        this.term.loadAddon(this.fit);
+
         // onopen
         this.resizeListener();
         window.addEventListener("resize", () => { this.resizeListener(); });
 
-        this.decoder = new UTF8Decoder();
-
-        this.term.loadAddon(this.fit)
         this.fit.fit();
         this.term.onSelectionChange(() => {
             console.log("onSelectionChange:", this.term.getSelection());
