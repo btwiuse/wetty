@@ -1,10 +1,5 @@
+import { Type } from "../msg/types_pb"
 export const protocols = ["wetty"];
-
-const	msgClientInput   = 0;   // SlaveFactory <- Master/Server <- Client/Browser
-const	msgSessionOutput = 1;   // SlaveFactory -> Master/Server -> Client/Browser
-const	msgSessionResize = 2;   // SlaveFactory <- Master/Server <- Client/Browser
-//const	msgSessionClose  = 3;   // SlaveFactory <- Master/Server <- Client/Browser
-const	msgClientClose   = 4;   //                 Master/Server -> Client/Browser
 
 export interface Terminal {
     info(): { columns: number, rows: number };
@@ -51,7 +46,7 @@ export class WeTTY {
                 const termInfo = this.term.info();
 
                 const resizeHandler = (colmuns: number, rows: number) => {
-                    connection.send(msgSessionResize,
+                    connection.send(Type.SESSION_RESIZE,
                         JSON.stringify(
                             {
                                 "Cols": colmuns,
@@ -66,7 +61,7 @@ export class WeTTY {
 
                 this.term.onInput(
                     (input: string) => {
-                        connection.send(msgClientInput, input);
+                        connection.send(Type.CLIENT_INPUT, input);
                     }
                 );
             });
@@ -74,10 +69,10 @@ export class WeTTY {
             connection.onReceive((data) => {
                 const payload = data.slice(1);
                 switch (data[0].charCodeAt(0)) {
-                    case msgSessionOutput:
+                    case Type.SESSION_OUTPUT:
 			this.term.output(payload);
                         break;
-                    case msgClientClose:
+                    case Type.CLIENT_CLOSE:
 			connection.close();
                         break;
                 }

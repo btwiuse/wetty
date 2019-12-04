@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/btwiuse/wetty/pkg/message"
+	"github.com/btwiuse/wetty/pkg/msg"
 	"github.com/gorilla/websocket"
 	"github.com/kr/pty"
 )
@@ -78,7 +78,7 @@ func sessionToClient(client Client, session Session, buf []byte) error {
 			return err
 		}
 
-		_, err = client.Write(append([]byte{message.SessionOutput}, buf[:n]...))
+		_, err = client.Write(append([]byte{byte(msg.Type_SESSION_OUTPUT)}, buf[:n]...))
 		if err != nil {
 			return err
 		}
@@ -92,13 +92,13 @@ func clientToSession(session Session, client Client, buf []byte) error {
 		if err != nil {
 			return err
 		}
-		switch msgType := buf[0]; msgType {
-		case message.ClientInput: // written by client
+		switch msgType := msg.Type(buf[0]); msgType {
+		case msg.Type_CLIENT_INPUT: // written by client
 			_, err = session.Write(buf[1:n])
 			if err != nil {
 				return err
 			}
-		case message.SessionResize: // written by client
+		case msg.Type_SESSION_RESIZE: // written by client
 			sz := &pty.Winsize{}
 			err = json.Unmarshal(buf[1:n], sz)
 			if err != nil {
@@ -109,7 +109,7 @@ func clientToSession(session Session, client Client, buf []byte) error {
 				return err
 			}
 			log.Println("new sz:", sz)
-		case message.SessionClose: // written by client
+		case msg.Type_SESSION_CLOSE: // written by client
 			err = session.Close()
 			if err != nil {
 				return err
