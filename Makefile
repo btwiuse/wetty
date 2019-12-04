@@ -1,5 +1,3 @@
-OUTPUT_DIR = ./builds
-
 client: main.go client/*.go 
 	goimports -w .
 	go install .
@@ -9,53 +7,29 @@ wetty: main.go pkg/* Makefile
 	go install .
 
 .PHONY: asset
-asset: bindata/static/js/wetty-bundle.js bindata/static/index.html bindata/static/favicon.ico bindata/static/css/index.css bindata/static/css/xterm.css bindata/static/css/xterm_customize.css
-	# go-bindata -prefix bindata -pkg server -ignore=\\.gitkeep -o server/asset.go bindata/...
-	# gofmt -w server/asset.go
-	assets -d ./bindata/static -package assets -o ./pkg/assets/assets.go -map Assets
+asset: js/dist/static
+	assets -d ./js/dist/static -package assets -o ./pkg/assets/assets.go -map Assets
 
 .PHONY: all client wetty
 all: asset wetty client
 	goimports -w .
 
-bindata:
-	mkdir bindata
+js/dist/static: js/dist/wetty-bundle.js
+	mkdir -p js/dist/static
+	mkdir -p js/dist/static/js
+	mkdir -p js/dist/static/css
+	cp static/index.html js/dist/static/index.html
+	cp static/favicon.ico js/dist/static/favicon.ico
+	cp js/dist/wetty-bundle.js js/dist/static/js/wetty-bundle.js
+	cp static/index.css js/dist/static/css/index.css
+	cp static/xterm_customize.css js/dist/static/css/xterm_customize.css
+	cp js/node_modules/xterm/css/xterm.css js/dist/static/css/xterm.css
 
-bindata/static: bindata
-	mkdir bindata/static
+js:
+	cd js && npm install
 
-bindata/static/index.html: bindata/static resources/index.html
-	cp resources/index.html bindata/static/index.html
-
-bindata/static/favicon.ico: bindata/static resources/favicon.ico
-	cp resources/favicon.ico bindata/static/favicon.ico
-
-bindata/static/js: bindata/static
-	mkdir -p bindata/static/js
-
-
-bindata/static/js/wetty-bundle.js: bindata/static/js js/dist/wetty-bundle.js
-	cp js/dist/wetty-bundle.js bindata/static/js/wetty-bundle.js
-
-bindata/static/css: bindata/static
-	mkdir -p bindata/static/css
-
-bindata/static/css/index.css: bindata/static/css resources/index.css
-	cp resources/index.css bindata/static/css/index.css
-
-bindata/static/css/xterm_customize.css: bindata/static/css resources/xterm_customize.css
-	cp resources/xterm_customize.css bindata/static/css/xterm_customize.css
-
-bindata/static/css/xterm.css: bindata/static/css js/node_modules/xterm/css/xterm.css
-	cp js/node_modules/xterm/css/xterm.css bindata/static/css/xterm.css
-
-js/node_modules/xterm/css/xterm.css:
-	cd js && \
-	npm install
-
-js/dist/wetty-bundle.js: js/src/* js/node_modules/webpack
-	cd js && \
-	`npm bin`/webpack
+js/dist/wetty-bundle.js: js js/src/* js/node_modules/webpack
+	cd js && `npm bin`/webpack
 
 js/node_modules/webpack:
 	cd js && \
