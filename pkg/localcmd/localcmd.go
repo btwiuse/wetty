@@ -22,7 +22,7 @@ func (factory *Factory) New() (*Lc, error) {
 	return NewLc(args)
 }
 
-// Lc implements the server.Slave interface {io.ReadWriteCloser,ResizeTerminal(),Kill()}
+// Lc implements the server.Slave interface {io.ReadWriteCloser,ResizeTerminal()}
 type Lc struct {
 	cmd       *exec.Cmd
 	pty       *os.File
@@ -79,7 +79,13 @@ func (lcmd *Lc) Close() error {
 	}
 }
 
-func (lcmd *Lc) ResizeTerminal(sz *pty.Winsize) error {
+func (lcmd *Lc) Resize(rows, cols int) error {
+	sz := &pty.Winsize{
+		uint16(rows),
+		uint16(cols),
+		0,
+		0,
+	}
 	_, _, errno := syscall.Syscall(
 		syscall.SYS_IOCTL,
 		lcmd.pty.Fd(),

@@ -1,11 +1,10 @@
 package utils
 
 import (
-	"io"
 	"io/ioutil"
-	"log"
 	"net"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -16,20 +15,20 @@ Connections support one concurrent reader and one concurrent writer.
 Applications are responsible for ensuring that no more than one goroutine calls the write methods (NextWriter, SetWriteDeadline, WriteMessage, WriteJSON, EnableWriteCompression, SetCompressionLevel) concurrently and that no more than one goroutine calls the read methods (NextReader, SetReadDeadline, ReadMessage, ReadJSON, SetPongHandler, SetPingHandler) concurrently.
 */
 
-func WsConnToReadWriter(c *websocket.Conn) *WsWrapper {
-	ret := new(WsWrapper)
-	ret.Conn = c
-	return ret
+func NetConn(c *websocket.Conn) net.Conn {
+	return &netConn{
+		Conn: c,
+	}
 }
 
-// WsWrapper makes a io.ReadWriter from websocket.Conn, implementing the wetty.Master interface
+// netConn makes a io.ReadWriteCloser from websocket.Conn, implementing the wetty.Master interface
 // it is fed to wetty.New to create a WeTTY, bridging the websocket.Conn and local command
-type WsWrapper struct {
+type netConn struct {
 	*websocket.Conn
 	mu sync.Mutex
 }
 
-func (wsw *WsWrapper) Write(p []byte) (n int, err error) {
+func (wsw *netConn) Write(p []byte) (n int, err error) {
 	wsw.mu.Lock()
 	defer wsw.mu.Unlock()
 	writer, err := wsw.Conn.NextWriter(websocket.BinaryMessage)
@@ -40,7 +39,7 @@ func (wsw *WsWrapper) Write(p []byte) (n int, err error) {
 	return writer.Write(p)
 }
 
-func (wsw *WsWrapper) Read(buf []byte) (int, error) {
+func (wsw *netConn) Read(buf []byte) (int, error) {
 	for {
 		msgType, reader, err := wsw.Conn.NextReader()
 		if err != nil {
@@ -66,38 +65,15 @@ func (wsw *WsWrapper) Read(buf []byte) (int, error) {
 	}
 }
 
-func (wsw *WsWrapper) Close() error {
+func (wsw *netConn) Close() error {
 	return wsw.Conn.Close()
 }
 
-// ReadWriter stores pointers to a Reader and a Writer.
-// It implements io.ReadWriter automatically
-type ReadWriter struct {
-	io.Reader
-	io.Writer
-}
-
-// single listener converts/upgrades the current tcp connection into grpc
-// ============================= gender changer impl
-type SingleListener struct {
-	net.Conn
-}
-
-// SingleListener implements the net.Listener interface
-func (s *SingleListener) Accept() (net.Conn, error) {
-	if s.Conn != nil {
-		log.Println("Gender Change: TCP Client -> GRPC Server")
-		c := s.Conn
-		s.Conn = nil
-		return c, nil
+func (c *netConn) SetDeadline(t time.Time) (err error) {
+	err = c.SetWriteDeadline(t)
+	if err != nil {
+		return
 	}
-	return nil, io.EOF
-}
-
-func (s *SingleListener) Close() error {
-	return nil
-}
-
-func (s *SingleListener) Addr() net.Addr {
-	return s.Conn.LocalAddr()
+	err = c.SetReadDeadline(t)
+	return
 }

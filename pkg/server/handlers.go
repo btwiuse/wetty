@@ -47,7 +47,7 @@ func (server *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	var client wetty.Client = utils.WsConnToReadWriter(conn)
+	var client wetty.Client = wetty.NewClientConn(utils.NetConn(conn))
 	var session wetty.Session
 	session, err = server.factory.New()
 	if err != nil {

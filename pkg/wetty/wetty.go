@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io"
 	"log"
+	"net"
 	"net/http"
 
 	"github.com/btwiuse/wetty/pkg/msg"
@@ -31,29 +32,27 @@ var (
 	}
 )
 
-type (
-	Client interface {
-		io.Reader
-		io.Writer
-		io.Closer
+type Client interface {
+	io.ReadWriteCloser
+	SizeChan() <-chan *struct {
+		Rows int
+		Cols int
 	}
+}
 
-	Session interface {
-		io.Reader
-		io.Writer
-		io.Closer
-		ResizeTerminal(*pty.Winsize) error
-	}
+type Session interface {
+	io.ReadWriteCloser
+	Resize(rows, cols int) error
+}
 
-	// WeTTY bridges a PTY slave and its PTY master.
-	// To support text-based streams and side channel commands such as
-	// terminal resizing, WeTTY uses an original protocol.
-	ClientSessionPair struct {
-		client     Client  // PTY Master, which probably a connection to browser
-		session    Session // PTY Slave
-		bufferSize int
-	}
-)
+// WeTTY bridges a PTY slave and its PTY master.
+// To support text-based streams and side channel commands such as
+// terminal resizing, WeTTY uses an original protocol.
+type ClientSessionPair struct {
+	client     Client  // PTY Master, which probably a connection to browser
+	session    Session // PTY Slave
+	bufferSize int
+}
 
 ///wetty.go
 
@@ -69,69 +68,128 @@ func NewClientSessionPair(client Client, session Session) *ClientSessionPair {
 	}
 }
 
-// slave >>>{ Output }>>> master >>> client
-// partition raw output in to frames with Output header
-func sessionToClient(client Client, session Session, buf []byte) error {
-	for {
-		n, err := session.Read(buf)
-		if err != nil {
-			return err
-		}
-
-		_, err = client.Write(append([]byte{byte(msg.Type_SESSION_OUTPUT)}, buf[:n]...))
-		if err != nil {
-			return err
-		}
+func NewClientConn(conn net.Conn) Client {
+	return &clientConn{
+		Conn: conn,
+		sizeChan: make(chan *struct {
+			Rows int
+			Cols int
+		}),
 	}
 }
 
-// slave <<<{ Close }<<< master <<<{ ResizeTerminal, Input }<<< client
-func clientToSession(session Session, client Client, buf []byte) error {
-	for {
-		n, err := client.Read(buf)
-		if err != nil {
-			return err
-		}
-		switch msgType := msg.Type(buf[0]); msgType {
-		case msg.Type_CLIENT_INPUT: // written by client
-			_, err = session.Write(buf[1:n])
-			if err != nil {
-				return err
-			}
-		case msg.Type_SESSION_RESIZE: // written by client
+type rowcol struct {
+	Rows int
+	Cols int
+}
+
+type clientConn struct {
+	net.Conn
+	sizeChan chan *struct {
+		Rows int
+		Cols int
+	}
+}
+
+func (cc *clientConn) SizeChan() <-chan *struct {
+	Rows int
+	Cols int
+} {
+	return cc.sizeChan
+}
+
+func (cc *clientConn) Write(p []byte) (int, error) {
+	n, err := cc.Conn.Write(append([]byte{byte(msg.Type_SESSION_OUTPUT)}, p...))
+	if err != nil {
+		return n - 1, err
+	}
+	return n - 1, nil
+}
+
+// p should be at least 4096 bytes
+func (cc *clientConn) Read(p []byte) (int, error) {
+	defer func() {
+		log.Println("RRRRR")
+	}()
+	limit := 4096
+	buf := make([]byte, limit+1)
+	n, err := cc.Conn.Read(buf)
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+	log.Println(n)
+	switch msgType := msg.Type(buf[0]); msgType {
+	case msg.Type_CLIENT_INPUT: // written by client
+		log.Println(string(buf[1:n]))
+		copy(p, buf[1:n])
+		return n - 1, nil
+	case msg.Type_SESSION_RESIZE: // written by client
+		go func() {
 			sz := &pty.Winsize{}
 			err = json.Unmarshal(buf[1:n], sz)
 			if err != nil {
-				return err
+				// log error
+				log.Println(err)
+				return
 			}
-			err = session.ResizeTerminal(sz)
-			if err != nil {
-				return err
+			cc.sizeChan <- &struct {
+				Rows int
+				Cols int
+			}{
+				int(sz.Rows),
+				int(sz.Cols),
 			}
-			log.Println("new sz:", sz)
-		case msg.Type_SESSION_CLOSE: // written by client
-			err = session.Close()
-			if err != nil {
-				return err
-			}
-			log.Println("Close, kill session")
+		}()
+		break
+	case msg.Type_SESSION_CLOSE: // written by client
+		/* ignore for now
+		err = session.Close()
+		if err != nil {
+			return err
 		}
+		log.Println("Close, kill session")
+		*/
+		break
 	}
+	return 0, nil
+}
+
+func (cc *clientConn) Close() error {
+	close(cc.sizeChan)
+	return cc.Conn.Close()
 }
 
 // when to call CSPair, who calls it?
 // from the perspective of master/server
 func (ms *ClientSessionPair) Pipe() error {
 	errs := make(chan error, 2)
-
 	go func() {
 		buf := make([]byte, ms.bufferSize)
-		errs <- sessionToClient(ms.client, ms.session, buf)
+		// r := strings.NewReader("navigaid")
+		_, err := io.CopyBuffer(ms.client, ms.session, buf)
+		// _, err := io.CopyBuffer(ms.client, r, buf)
+		errs <- err
 	}()
 
 	go func() {
 		buf := make([]byte, ms.bufferSize)
-		errs <- clientToSession(ms.session, ms.client, buf)
+		_, err := io.CopyBuffer(ms.session, ms.client, buf)
+		errs <- err
+	}()
+
+	go func() {
+		for {
+			size := <-ms.client.SizeChan()
+			if size == nil {
+				return
+			}
+			log.Println("resizing")
+			err := ms.session.Resize(size.Rows, size.Cols)
+			if err != nil {
+				errs <- err
+			}
+		}
 	}()
 
 	return <-errs
