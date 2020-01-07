@@ -5,12 +5,15 @@ package wetty
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net"
 	"net/http"
+	"sync"
 
 	"github.com/btwiuse/wetty/pkg/msg"
 	"github.com/gorilla/websocket"
 	"github.com/kr/pty"
+	"golang.org/x/sync/errgroup"
 )
 
 // Protocols defines the name of this protocol,
@@ -74,6 +77,7 @@ func NewClientConn(conn net.Conn) Client {
 			Rows int
 			Cols int
 		}),
+		closeOnceQuit: &sync.Once{},
 	}
 }
 
@@ -88,6 +92,7 @@ type clientConn struct {
 		Rows int
 		Cols int
 	}
+	closeOnceQuit *sync.Once
 }
 
 func (cc *clientConn) SizeChan() <-chan *struct {
@@ -149,40 +154,56 @@ func (cc *clientConn) Read(p []byte) (int, error) {
 }
 
 func (cc *clientConn) Close() error {
-	close(cc.sizeChan)
+	cc.closeOnceQuit.Do(func() {
+		close(cc.sizeChan)
+	})
 	return cc.Conn.Close()
 }
 
 // when to call CSPair, who calls it?
 // from the perspective of master/server
-func (ms *ClientSessionPair) Pipe() error {
-	errs := make(chan error, 2)
-	go func() {
+func (ms *ClientSessionPair) Pipe() (err error) {
+	eg := &errgroup.Group{}
+	eg.Go(func() (err error) {
+		defer func() {
+			log.Println("1", err)
+			ms.client.Close()
+		}()
 		buf := make([]byte, ms.bufferSize)
 		// r := strings.NewReader("navigaid")
-		_, err := io.CopyBuffer(ms.client, ms.session, buf)
+		_, err = io.CopyBuffer(ms.client, ms.session, buf)
 		// _, err := io.CopyBuffer(ms.client, r, buf)
-		errs <- err
-	}()
+		return err
+	})
 
-	go func() {
+	eg.Go(func() (err error) {
+		defer func() {
+			log.Println("2", err)
+			ms.client.Close()
+		}()
 		buf := make([]byte, ms.bufferSize)
-		_, err := io.CopyBuffer(ms.session, ms.client, buf)
-		errs <- err
-	}()
+		_, err = io.CopyBuffer(ms.session, ms.client, buf)
+		return err
+	})
 
-	go func() {
+	eg.Go(func() (err error) {
+		defer func() {
+			log.Println("3", err)
+		}()
 		for {
 			size := <-ms.client.SizeChan()
 			if size == nil {
-				return
+				return nil
 			}
-			err := ms.session.Resize(size.Rows, size.Cols)
+			err = ms.session.Resize(size.Rows, size.Cols)
 			if err != nil {
-				errs <- err
+				return err
 			}
 		}
-	}()
+	})
 
-	return <-errs
+	defer func() {
+		log.Println("eg.Wait", err)
+	}()
+	return eg.Wait()
 }
