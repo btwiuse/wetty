@@ -5,7 +5,6 @@ package wetty
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net"
 	"net/http"
 
@@ -108,20 +107,15 @@ func (cc *clientConn) Write(p []byte) (int, error) {
 
 // p should be at least 4096 bytes
 func (cc *clientConn) Read(p []byte) (int, error) {
-	defer func() {
-		log.Println("RRRRR")
-	}()
 	limit := 4096
 	buf := make([]byte, limit+1)
 	n, err := cc.Conn.Read(buf)
 	if err != nil {
-		log.Println(err)
 		return 0, err
 	}
-	log.Println(n)
 	switch msgType := msg.Type(buf[0]); msgType {
 	case msg.Type_CLIENT_INPUT: // written by client
-		log.Println(string(buf[1:n]))
+		// p = buf[1:n]
 		copy(p, buf[1:n])
 		return n - 1, nil
 	case msg.Type_SESSION_RESIZE: // written by client
@@ -130,7 +124,6 @@ func (cc *clientConn) Read(p []byte) (int, error) {
 			err = json.Unmarshal(buf[1:n], sz)
 			if err != nil {
 				// log error
-				log.Println(err)
 				return
 			}
 			cc.sizeChan <- &struct {
@@ -184,7 +177,6 @@ func (ms *ClientSessionPair) Pipe() error {
 			if size == nil {
 				return
 			}
-			log.Println("resizing")
 			err := ms.session.Resize(size.Rows, size.Cols)
 			if err != nil {
 				errs <- err

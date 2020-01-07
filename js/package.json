@@ -1,31 +1,24 @@
 {
-    "description": "a yudai/gotty fork with less features",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/btwiuse/wetty"
-    },
     "devDependencies": {
         "license-loader": "^0.7.0",
         "ts-loader": "^6.2.1",
-        "typescript": "^3.7.4",
+        "typescript": "^3.7.3",
         "uglifyjs-webpack-plugin": "^2.2.0",
-        "webpack": "^4.41.5",
+        "webpack": "^4.41.2",
         "webpack-cli": "^3.3.10"
     },
     "dependencies": {
-        "@babel/core": "^7.7.7",
+        "@babel/core": "^7.7.4",
         "babel-loader": "^8.0.6",
         "babel-minify-webpack-plugin": "^0.3.1",
         "babel-preset-es2015": "^6.24.1",
-        "google-protobuf": "^3.11.2",
+        "google-protobuf": "^3.11.1",
         "libapps": "git+https://github.com/btwiuse/libapps.git#hterm",
         "libdot": "git+https://github.com/btwiuse/libdot.git#v3.0.9",
-        "terser-webpack-plugin": "^2.3.1",
-        "uglify-js": "^3.7.4",
+        "terser-webpack-plugin": "^2.2.1",
+        "uglify-js": "^3.7.1",
         "webpack-sources": "^1.4.3",
-        "xterm": "^4.3.0",
-        "xterm-addon-attach": "^0.3.0",
+        "xterm": "^4.2.0",
         "xterm-addon-fit": "^0.3.0",
         "xterm-addon-webgl": "^0.3.0"
     }
