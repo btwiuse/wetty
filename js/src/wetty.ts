@@ -4,7 +4,6 @@ export const protocols = ["wetty"];
 export interface Terminal {
     info(): { columns: number, rows: number };
     output(data: string): void;
-    attach(ws: WebSocket): void;
     showMessage(message: string, timeout: number): void;
     removeMessage(): void;
     onInput(callback: (input: string) => void): void;
@@ -15,7 +14,6 @@ export interface Terminal {
 }
 
 export interface Connection {
-    ws: WebSocket;
     open(): void;
     close(): void;
     send(msgType: number, data: string): void;
@@ -28,6 +26,7 @@ export interface Connection {
 export interface ConnectionFactory {
     create(): Connection;
 }
+
 
 export class WeTTY {
     term: Terminal;
@@ -46,61 +45,51 @@ export class WeTTY {
             connection.onOpen(() => {
                 const termInfo = this.term.info();
 
-                const resizeHandler = (columns: number, rows: number) => {
-                    console.log(columns, rows);
+                const resizeHandler = (colmuns: number, rows: number) => {
                     connection.send(Type.SESSION_RESIZE,
                         JSON.stringify(
                             {
-                                "Cols": columns,
+                                "Cols": colmuns,
                                 "Rows": rows
                             }
                         )
                     );
                 };
 
-                // this.term.onResize(resizeHandler);
+                this.term.onResize(resizeHandler);
                 resizeHandler(termInfo.columns, termInfo.rows);
 
-                /*
                 this.term.onInput(
                     (input: string) => {
                         connection.send(Type.CLIENT_INPUT, input);
                     }
                 );
-                */
             });
 
-//          connection.onReceive((data) => {
-//              // const payload = data.slice(1);
-//              switch (data[0].charCodeAt(0)) {
-//                  /*
-//                  case Type.SESSION_OUTPUT:
-//      		this.term.output(payload);
-//                      break;
-//                  */
-//                  case Type.CLIENT_CLOSE:
-//                      console.log("received CLIENT_CLOSE");
-//      		connection.close();
-//                      this.term.close();
-//                      break;
-//              }
-//          });
+            connection.onReceive((data) => {
+                const payload = data.slice(1);
+                switch (data[0].charCodeAt(0)) {
+                    case Type.SESSION_OUTPUT:
+			this.term.output(payload);
+                        break;
+                    case Type.CLIENT_CLOSE:
+			connection.close();
+                        break;
+                }
+            });
 
             connection.onClose(() => {
                 clearInterval(pingTimer);
                 this.term.deactivate();
                 this.term.showMessage("Connection Closed", 0);
-                this.term.close();
             });
 
             connection.open();
-            this.term.attach(connection.ws);
         }
 
         setup();
         return () => {
             connection.close();
-            this.term.close();
         }
     };
 };
