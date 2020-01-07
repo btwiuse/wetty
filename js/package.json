@@ -22,7 +22,7 @@
         "libapps": "git+https://github.com/btwiuse/libapps.git#hterm",
         "libdot": "git+https://github.com/btwiuse/libdot.git#v3.0.9",
         "terser-webpack-plugin": "^2.3.1",
-        "uglify-js": "^3.7.3",
+        "uglify-js": "^3.7.4",
         "webpack-sources": "^1.4.3",
         "xterm": "^4.3.0",
         "xterm-addon-attach": "^0.3.0",
