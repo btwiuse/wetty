@@ -13,7 +13,7 @@ if (elem !== null) {
 
     // factory (websocket backend)
     const httpsEnabled = window.location.protocol == "https:";
-    const url = (httpsEnabled ? 'wss://' : 'ws://') + window.location.host + window.location.pathname + 'ws';
+    const url = (httpsEnabled ? 'wss://' : 'ws://') + window.location.host + window.location.pathname + 'terminal';
     const factory = new TransportFactory(url, protocols);
 
     // wetty (hub)

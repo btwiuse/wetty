@@ -19,11 +19,11 @@ func (server *Server) setupHandlers(pathPrefix string) http.Handler {
 	mux := http.NewServeMux()
 	staticFileServer := http.FileServer(httpfs.NewFileSystem(assets.Assets, time.Now()))
 	mux.Handle(pathPrefix, http.StripPrefix(pathPrefix, staticFileServer))
-	mux.HandleFunc(pathPrefix+"ws", server.wsHandler)
+	mux.HandleFunc(pathPrefix+"terminal", server.terminalHandler)
 	return handlers.LoggingHandler(os.Stderr, mux)
 }
 
-func (server *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
+func (server *Server) terminalHandler(w http.ResponseWriter, r *http.Request) {
 	closeReason := "unknown reason"
 
 	defer func() {
