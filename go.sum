@@ -12,6 +12,8 @@ github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+Ce
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/btwiuse/asciitransport v0.0.0-20200126192737-0d3606a53742 h1:LmwQQWWn44/OYrYU4sr8uuz4ZuZtZdRosolT+76u19U=
 github.com/btwiuse/asciitransport v0.0.0-20200126192737-0d3606a53742/go.mod h1:BzurrWYz+6DvzF7ZvbY22Zl7zYHKTDGOamvlipGxbzA=
+github.com/btwiuse/asciitransport v0.0.0-20200126193701-92ad33490cec h1:xafVnVFWCO8Y4xBBV4pQZeN70T1Vm2e0inyvN4nMScI=
+github.com/btwiuse/asciitransport v0.0.0-20200126193701-92ad33490cec/go.mod h1:BzurrWYz+6DvzF7ZvbY22Zl7zYHKTDGOamvlipGxbzA=
 github.com/btwiuse/gods v0.0.0-20190414062120-7e7cf0aebbb0/go.mod h1:HemNeMkO+h/A3mRCi9Sr2x3aEzE1sc0nUUl3Eg539hU=
 github.com/btwiuse/pretty v0.0.0-20190401073227-519ff4ea1882 h1:bO0cdWOtgJk7rlRCOObS/TqtbvAisBWSoWpmdJEOius=
 github.com/btwiuse/pretty v0.0.0-20190401073227-519ff4ea1882/go.mod h1:ylRP8/cdGCVHKukmdQkTjIkbVPykEIC8iGT54pOh/KA=

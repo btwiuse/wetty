@@ -3,7 +3,7 @@ module github.com/btwiuse/wetty
 go 1.12
 
 require (
-	github.com/btwiuse/asciitransport v0.0.0-20200126192737-0d3606a53742
+	github.com/btwiuse/asciitransport v0.0.0-20200126193701-92ad33490cec
 	github.com/containerd/console v0.0.0-20191219165238-8375c3424e4d
 	github.com/creack/pty v1.1.9
 	github.com/gorilla/handlers v1.4.2
