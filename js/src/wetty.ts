@@ -1,95 +1,80 @@
-import { Type } from "../msg/types_pb"
 export const protocols = ["wetty"];
 
 export interface Terminal {
-    info(): { columns: number, rows: number };
+    info(): { cols: number, rows: number };
     output(data: string): void;
     showMessage(message: string, timeout: number): void;
     removeMessage(): void;
     onInput(callback: (input: string) => void): void;
-    onResize(callback: (colmuns: number, rows: number) => void): void;
+    onResize(callback: (cols: number, rows: number) => void): void;
     reset(): void;
     deactivate(): void;
     close(): void;
 }
 
-export interface Connection {
+export interface Transport {
     open(): void;
     close(): void;
-    send(msgType: number, data: string): void;
-    isOpen(): boolean;
-    onOpen(callback: () => void): void;
-    onReceive(callback: (data: string) => void): void;
-    onClose(callback: () => void): void;
+    input(data: string): void;
+    resize(cols: number, rows: number): void;
+    onOpen(callback: (ev: Event) => void): void;
+    onMessage(callback: (ev: MessageEvent) => void): void;
+    onClose(callback: (ev: CloseEvent) => void): void;
 }
 
-export interface ConnectionFactory {
-    create(): Connection;
+export interface TransportFactory {
+    create(): Transport;
 }
-
 
 export class WeTTY {
     term: Terminal;
-    connectionFactory: ConnectionFactory;
+    transportFactory: TransportFactory;
 
-    constructor(term: Terminal, connectionFactory: ConnectionFactory) {
+    constructor(term: Terminal, transportFactory: TransportFactory) {
         this.term = term;
-        this.connectionFactory = connectionFactory;
+        this.transportFactory = transportFactory;
     };
 
     open() {
-        let connection = this.connectionFactory.create();
+        let transport = this.transportFactory.create();
         let pingTimer: number;
 
         const setup = () => {
-            connection.onOpen(() => {
+            transport.onOpen(() => {
                 const termInfo = this.term.info();
 
-                const resizeHandler = (colmuns: number, rows: number) => {
-                    connection.send(Type.SESSION_RESIZE,
-                        JSON.stringify(
-                            {
-                                "Cols": colmuns,
-                                "Rows": rows
-                            }
-                        )
-                    );
+                const resizeHandler = (cols: number, rows: number) => {
+                    transport.resize(cols, rows);
                 };
 
+                const inputHandler = (input: string) => {
+                    transport.input(input);
+                };
+
+                resizeHandler(termInfo.cols, termInfo.rows);
+
                 this.term.onResize(resizeHandler);
-                resizeHandler(termInfo.columns, termInfo.rows);
-
-                this.term.onInput(
-                    (input: string) => {
-                        connection.send(Type.CLIENT_INPUT, input);
-                    }
-                );
+                this.term.onInput(inputHandler);
             });
 
-            connection.onReceive((data) => {
-                const payload = data.slice(1);
-                switch (data[0].charCodeAt(0)) {
-                    case Type.SESSION_OUTPUT:
-			this.term.output(payload);
-                        break;
-                    case Type.CLIENT_CLOSE:
-			connection.close();
-                        break;
-                }
+            transport.onMessage((event) => {
+              const ab2str : (buf : Uint8Array)=>string = (buf) => { return String.fromCharCode.apply(null, new Uint8Array(buf)) };
+              var json = JSON.parse(ab2str(event.data));
+              this.term.output(json[2]);
             });
 
-            connection.onClose(() => {
+            transport.onClose(() => {
                 clearInterval(pingTimer);
                 this.term.deactivate();
                 this.term.showMessage("Connection Closed", 0);
             });
 
-            connection.open();
+            transport.open();
         }
 
         setup();
         return () => {
-            connection.close();
+            transport.close();
         }
     };
 };

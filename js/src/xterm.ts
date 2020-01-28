@@ -34,7 +34,7 @@ export class Xterm {
         this.messageTimeout = 2000;
 
         this.resizeListener = () => {
-            console.log("resize:", this.info());
+            // console.log("resize:", this.info());
             this.fit.fit();
             this.term.scrollToBottom();
             this.showMessage(String(this.term.cols) + "x" + String(this.term.rows), this.messageTimeout);
@@ -55,8 +55,8 @@ export class Xterm {
         });
     };
 
-    info(): { columns: number, rows: number } {
-        return { columns: this.term.cols, rows: this.term.rows };
+    info(): { cols: number, rows: number } {
+        return { cols: this.term.cols, rows: this.term.rows };
     };
 
     output(data: string) {
@@ -71,7 +71,7 @@ export class Xterm {
             clearTimeout(this.messageTimer);
         }
         if (timeout > 0) {
-            this.messageTimer = setTimeout(() => {
+            this.messageTimer = window.setTimeout(() => {
                 this.elem.removeChild(this.message);
             }, timeout);
         }
@@ -89,9 +89,9 @@ export class Xterm {
         });
     };
 
-    onResize(callback: (colmuns: number, rows: number) => void) {
+    onResize(callback: (cols: number, rows: number) => void) {
         this.term.onResize((data) => {
-            console.log("onresize");
+            // console.log("onresize");
             callback(data.cols, data.rows);
         });
     };
