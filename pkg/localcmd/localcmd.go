@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/kr/pty"
+	"github.com/creack/pty"
 )
 
 // Factory implements the server.Factory interface

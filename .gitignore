@@ -4,3 +4,4 @@ bindata
 builds
 js/node_modules/*
 js/dist/*
+/*.log
