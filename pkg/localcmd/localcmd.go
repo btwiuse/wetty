@@ -31,6 +31,7 @@ type Lc struct {
 
 func NewLc(args []string) (*Lc, error) {
 	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Env = append(os.Environ(), "TERM=xterm")
 
 	pty, err := pty.Start(cmd)
 	if err != nil {
@@ -56,6 +57,7 @@ func NewLc(args []string) (*Lc, error) {
 		lcmd.cmd.Wait()
 	}()
 
+	lcmd.Resize(24, 80)
 	return lcmd, nil
 }
 

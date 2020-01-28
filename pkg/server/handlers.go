@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +9,7 @@ import (
 	"github.com/gorilla/handlers"
 	"modernc.org/httpfs"
 
+	"github.com/btwiuse/asciitransport"
 	"github.com/btwiuse/wetty/pkg/assets"
 	"github.com/btwiuse/wetty/pkg/utils"
 	"github.com/btwiuse/wetty/pkg/wetty"
@@ -46,15 +46,33 @@ func (server *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Close()
+	wsconn := utils.NetConn(conn)
 
-	var client wetty.Client = wetty.NewClientConn(utils.NetConn(conn))
-	var session wetty.Session
-	session, err = server.factory.New()
-	if err != nil {
-		closeReason = "session creation failed"
-		return
-	}
-	defer session.Close()
-	err = wetty.NewClientSessionPair(client, session).Pipe()
-	closeReason = fmt.Sprintf("an error: %s", err)
+	var (
+		term, _ = server.factory.New()
+		opts    = []asciitransport.Opt{
+			asciitransport.WithReader(term),
+			asciitransport.WithWriter(term),
+		}
+		aserver = asciitransport.Server(wsconn, opts...)
+	)
+
+	go func() {
+		for {
+			var (
+				re   = <-aserver.ResizeEvent()
+				rows = int(re.Height)
+				cols = int(re.Width)
+			)
+			err := term.Resize(rows, cols)
+			if err != nil {
+				log.Println(err)
+				break
+			}
+		}
+		aserver.Close()
+	}()
+
+	<-aserver.Done()
+	log.Println("detached", term.Close())
 }

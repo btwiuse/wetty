@@ -2,6 +2,14 @@ syntax = "proto3";
 
 package msg;
 
+/*
+service Session {
+  rpc Input(stream InputRequest) returns () {};
+  rpc Output() returns (stream OutputRequest) {};
+  rpc Resize()
+}
+*/
+
 enum Type {
      CLIENT_INPUT   = 0; // Session <- Hub <- Client
      SESSION_OUTPUT = 1; // Session -> Hub -> Client

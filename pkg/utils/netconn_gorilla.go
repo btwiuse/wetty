@@ -2,6 +2,7 @@ package utils
 
 import (
 	"io/ioutil"
+	"log"
 	"net"
 	"sync"
 	"time"
@@ -46,6 +47,7 @@ func (wsw *netConn) Read(buf []byte) (int, error) {
 			return 0, err
 		}
 		if msgType != websocket.BinaryMessage {
+			log.Println("not BinaryMessage:")
 			continue
 		}
 
