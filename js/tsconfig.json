@@ -1,5 +1,11 @@
 {
   "compilerOptions": {
+      "typeRoots": [
+          "./node_modules/@types"
+      ],
+      "types": [
+        "node"
+      ],
       "strictNullChecks": false,
       "noUnusedLocals" : true,
       "noImplicitThis": true,

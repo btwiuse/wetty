@@ -2,24 +2,33 @@
     "devDependencies": {
         "license-loader": "^0.7.0",
         "ts-loader": "^6.2.1",
-        "typescript": "^3.7.3",
+        "typescript": "^3.7.5",
         "uglifyjs-webpack-plugin": "^2.2.0",
         "webpack": "^4.41.2",
         "webpack-cli": "^3.3.10"
     },
     "dependencies": {
-        "@babel/core": "^7.7.4",
+        "@babel/core": "^7.8.3",
+        "@types/node": "^13.5.0",
         "babel-loader": "^8.0.6",
         "babel-minify-webpack-plugin": "^0.3.1",
         "babel-preset-es2015": "^6.24.1",
+        "browser-stdout": "^1.3.1",
+        "browserify": "^16.5.0",
         "google-protobuf": "^3.11.1",
+        "http": "0.0.0",
         "libapps": "git+https://github.com/btwiuse/libapps.git#hterm",
         "libdot": "git+https://github.com/btwiuse/libdot.git#v3.0.9",
-        "terser-webpack-plugin": "^2.2.1",
-        "uglify-js": "^3.7.1",
+        "readline": "^1.3.0",
+        "readline-browserify": "0.0.4",
+        "stream": "0.0.2",
+        "terser-webpack-plugin": "^2.3.2",
+        "uglify-js": "^3.7.6",
         "webpack-sources": "^1.4.3",
-        "xterm": "^4.2.0",
+        "websocket-stream": "^5.5.0",
+        "window-size": "^1.1.1",
+        "xterm": "^4.3.0",
         "xterm-addon-fit": "^0.3.0",
-        "xterm-addon-webgl": "^0.3.0"
+        "xterm-addon-webgl": "^0.4.1"
     }
 }
