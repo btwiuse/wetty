@@ -7,6 +7,18 @@ import { UTF8Decoder } from 'libdot';
 // the Uatob solution works well except when you receive only part of a multi-byte character
 // that's why we need UTF8Decoder
 
+function detectWebGLContext() : boolean {
+  // Create canvas element. The canvas is not added to the
+  // document itself, so it is never displayed in the
+  // browser window.
+  var canvas = document.createElement("canvas");
+  // Get WebGLRenderingContext from canvas element.
+  var gl = canvas.getContext("webgl")
+    || canvas.getContext("experimental-webgl");
+  // Report the result.
+  return (gl && gl instanceof WebGLRenderingContext)
+}
+
 export class Xterm {
     elem: HTMLElement;
     term: Terminal;
@@ -41,8 +53,9 @@ export class Xterm {
         };
 
         this.term.open(elem);
-
-        this.term.loadAddon(this.webgl); // Cannot activate WebglRendererAddon before Terminal.open
+        if (detectWebGLContext){
+          this.term.loadAddon(this.webgl); // Cannot activate WebglRendererAddon before Terminal.open
+        }
         this.term.loadAddon(this.fit);
 
         // onopen
