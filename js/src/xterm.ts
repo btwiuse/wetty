@@ -15,7 +15,7 @@ function detectWebGL2() : boolean {
   // Get WebGLRenderingContext from canvas element.
   var gl = canvas.getContext("webgl2");
   // Report the result.
-  return (gl && gl instanceof WebGLRenderingContext)
+  return (!!gl)
 }
 
 export class Xterm {
