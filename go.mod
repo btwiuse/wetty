@@ -8,6 +8,6 @@ require (
 	github.com/creack/pty v1.1.9
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/websocket v1.4.1
-	k0s.io/conntroll v0.0.2-0.19700101000000-522c57413895
+	k0s.io/k0s v0.0.5
 	modernc.org/httpfs v1.0.0
 )
