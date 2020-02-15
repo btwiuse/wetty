@@ -12,7 +12,7 @@ import (
 	"github.com/btwiuse/wetty/pkg/utils"
 	"github.com/containerd/console"
 	"github.com/gorilla/websocket"
-	"k0s.io/conntroll/pkg/uuid"
+	"k0s.io/k0s/pkg/uuid"
 )
 
 func dial(p string) (conn net.Conn, err error) {

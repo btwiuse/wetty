@@ -12,7 +12,7 @@ import (
 	"github.com/btwiuse/asciitransport"
 	"github.com/btwiuse/wetty/pkg/localcmd"
 	"github.com/containerd/console"
-	"k0s.io/conntroll/pkg/uuid"
+	"k0s.io/k0s/pkg/uuid"
 )
 
 var (
