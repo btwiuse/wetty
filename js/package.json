@@ -1,8 +1,8 @@
 {
     "devDependencies": {
         "license-loader": "^0.7.0",
-        "ts-loader": "^6.2.1",
-        "typescript": "^3.7.5",
+        "ts-loader": "^8.0.1",
+        "typescript": "^3.9.7",
         "uglifyjs-webpack-plugin": "^2.2.0",
         "webpack": "^4.41.2",
         "webpack-cli": "^3.3.10"
@@ -27,8 +27,8 @@
         "webpack-sources": "^1.4.3",
         "websocket-stream": "^5.5.0",
         "window-size": "^1.1.1",
-        "xterm": "^4.3.0",
-        "xterm-addon-fit": "^0.3.0",
-        "xterm-addon-webgl": "^0.4.1"
+        "xterm": "^4.8.1",
+        "xterm-addon-fit": "^0.4.0",
+        "xterm-addon-webgl": "^0.8.0"
     }
 }
