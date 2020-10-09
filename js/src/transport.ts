@@ -45,8 +45,14 @@ export class Transport {
     };
 
     input(data: string) {
-      var json = JSON.stringify([0, "i", data]);
-      this.ws.send(this.str2ab(json+"\n"));
+      // https://stackoverflow.com/a/29202760/4602592
+      var size = 4000;
+      var numChunks = Math.ceil(data.length / size);
+      for (let i = 0, o = 0; i < numChunks; ++i, o+=size) {
+        var chunk = data.substr(o, size);
+        var json = JSON.stringify([0, "i", chunk]);
+        this.ws.send(this.str2ab(json+"\n"));
+      }
     };
 
     onOpen(callback: (ev : Event) => void) {
