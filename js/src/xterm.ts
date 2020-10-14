@@ -1,7 +1,6 @@
 import { Terminal } from "xterm";
 import { WebglAddon } from 'xterm-addon-webgl';
 import { FitAddon } from 'xterm-addon-fit';
-import { UTF8Decoder } from 'libdot';
 
 // https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
 // the Uatob solution works well except when you receive only part of a multi-byte character
@@ -24,7 +23,6 @@ export class Xterm {
     fit: FitAddon;
     webgl: WebglAddon;
     resizeListener: () => void;
-    decoder: UTF8Decoder;
 
     message: HTMLElement;
     messageTimeout: number;
@@ -38,7 +36,6 @@ export class Xterm {
         });
         this.fit = new FitAddon();
         this.webgl = new WebglAddon();
-        this.decoder = new UTF8Decoder();
 
         this.message = elem.ownerDocument.createElement("div");
         this.message.className = "xterm-overlay";
@@ -71,8 +68,8 @@ export class Xterm {
         return { cols: this.term.cols, rows: this.term.rows };
     };
 
-    output(data: string) {
-        this.term.write(this.decoder.decode(data));
+    output(data: Uint8Array) {
+        this.term.write(data);
     };
 
     showMessage(message: string, timeout: number) {

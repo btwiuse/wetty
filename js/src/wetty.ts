@@ -2,7 +2,7 @@ export const protocols = ["wetty"];
 
 export interface Terminal {
     info(): { cols: number, rows: number };
-    output(data: string): void;
+    output(data: Uint8Array): void;
     showMessage(message: string, timeout: number): void;
     removeMessage(): void;
     onInput(callback: (input: string) => void): void;
@@ -15,6 +15,8 @@ export interface Terminal {
 export interface Transport {
     open(): void;
     close(): void;
+    str2ab(str: string) : ArrayBuffer;
+    ab2str(buf: Uint8Array) : string;
     input(data: string): void;
     resize(cols: number, rows: number): void;
     onOpen(callback: (ev: Event) => void): void;
@@ -58,9 +60,9 @@ export class WeTTY {
             });
 
             transport.onMessage((event) => {
-              const ab2str : (buf : Uint8Array)=>string = (buf) => { return String.fromCharCode.apply(null, new Uint8Array(buf)) };
-              var json = JSON.parse(ab2str(event.data));
-              this.term.output(json[2]);
+              var json = JSON.parse(transport.ab2str(event.data));
+              var payload = new Uint8Array(transport.str2ab(json[2]));
+              this.term.output(payload);
             });
 
             transport.onClose(() => {

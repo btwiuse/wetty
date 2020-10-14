@@ -17,9 +17,24 @@ export class Transport {
     online: (data: string) => void;
     enc: TextEncoder;
 
+    /* https://stackoverflow.com/questions/6965107/converting-between-strings-and-arraybuffers
+     *
+     *   var arrayBufferToString = function(buffer) {
+     *     return String.fromCharCode.apply(null, new Uint8Array(buffer));
+     *   }
+     *
+     *   var stringToArrayBuffer = function(str) {
+     *     return (new Uint8Array([].map.call(str,function(x){return x.charCodeAt(0)}))).buffer;
+     *   }
+     */
+
     str2ab(str: string) : ArrayBuffer{
       return this.enc.encode(str)
     }
+
+    ab2str(buf : Uint8Array) : string {
+      return String.fromCharCode.apply(null, new Uint8Array(buf))
+    };
 
     constructor(url: string, protocols: string[]) {
       this.ws = new WebSocket(url, protocols);
