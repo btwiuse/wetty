@@ -18,10 +18,9 @@ if (elem !== null) {
 
     // wetty (hub)
     const wt = new WeTTY(term, factory);
-    const closer = wt.open();
+    wt.open();
 
     window.addEventListener("unload", () => {
-        closer();
-        term.close();
+        wt.close();
     });
 };

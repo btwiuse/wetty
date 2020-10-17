@@ -28,19 +28,15 @@ export class Transport {
      *   }
      */
 
-    str2ab(str: string) : ArrayBuffer{
+    str2ab(str: string) : Uint8Array {
       return this.enc.encode(str)
-    }
-
-    ab2str(buf : Uint8Array) : string {
-      return String.fromCharCode.apply(null, new Uint8Array(buf))
     };
 
     constructor(url: string, protocols: string[]) {
       this.ws = new WebSocket(url, protocols);
       this.ws.binaryType = 'arraybuffer';
       this.enc = new TextEncoder();
-    }
+    };
 
     open() {
       // nothing todo for websocket
@@ -64,7 +60,7 @@ export class Transport {
       var size = 4000;
       var numChunks = Math.ceil(data.length / size);
       for (let i = 0, o = 0; i < numChunks; ++i, o+=size) {
-        var chunk = data.substr(o, size);
+        var chunk = _arrayBufferToBase64(this.str2ab(data.substr(o, size)));
         var json = JSON.stringify([0, "i", chunk]);
         this.ws.send(this.str2ab(json+"\n"));
       }
@@ -81,4 +77,15 @@ export class Transport {
     onClose(callback: (ev: CloseEvent) => void) {
       this.ws.onclose = callback;
     };
+}
+
+// https://stackoverflow.com/questions/9267899/arraybuffer-to-base64-encoded-string
+function _arrayBufferToBase64( buffer ) {
+    var binary = '';
+    var bytes = new Uint8Array( buffer );
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode( bytes[ i ] );
+    }
+    return btoa( binary );
 }
