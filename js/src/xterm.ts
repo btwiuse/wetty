@@ -1,23 +1,10 @@
 import { Terminal } from "xterm";
-import { WebglAddon } from "xterm-addon-webgl";
 import { FitAddon } from "xterm-addon-fit";
-
-function detectWebGL2(): boolean {
-  // Create canvas element. The canvas is not added to the
-  // document itself, so it is never displayed in the
-  // browser window.
-  var canvas = document.createElement("canvas");
-  // Get WebGLRenderingContext from canvas element.
-  var gl = canvas.getContext("webgl2");
-  // Report the result.
-  return (!!gl);
-}
 
 export class Xterm {
   elem: HTMLElement;
   term: Terminal;
   fit: FitAddon;
-  webgl: WebglAddon;
   resizeListener: () => void;
   decoder: TextDecoder;
 
@@ -34,7 +21,6 @@ export class Xterm {
       allowTransparency: true,
     });
     this.fit = new FitAddon();
-    this.webgl = new WebglAddon();
     this.decoder = new TextDecoder();
 
     this.message = elem.ownerDocument.createElement("div");
@@ -52,9 +38,6 @@ export class Xterm {
     };
 
     this.term.open(elem);
-    if (detectWebGL2) {
-      this.term.loadAddon(this.webgl); // Cannot activate WebglRendererAddon before Terminal.open
-    }
     this.term.loadAddon(this.fit);
 
     // onopen
