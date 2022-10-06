@@ -7,6 +7,9 @@
         "webpack": "^4.41.2",
         "webpack-cli": "^3.3.10"
     },
+    "scripts": {
+      "build": "webpack"
+    },
     "dependencies": {
         "@babel/core": "^7.8.4",
         "@types/node": "^13.7.0",
@@ -29,8 +32,8 @@
         "webpack-sources": "^1.4.3",
         "websocket-stream": "^5.5.0",
         "window-size": "^1.1.1",
-        "xterm": "^4.9.0",
-        "xterm-addon-fit": "^0.4.0",
-        "xterm-addon-webgl": "^0.9.0"
+        "xterm": "^5.0.0",
+        "xterm-addon-fit": "^0.6.0",
+        "xterm-addon-webgl": "^0.13.0"
     }
 }
