@@ -29,6 +29,7 @@ export class Xterm {
         this.elem = elem;
         this.term = new Terminal({
             fontFamily: 'DejaVu Sans Mono, Everson Mono, FreeMono, Menlo, Terminal, monospace, Apple Symbols',
+            allowProposedApi: true,
             allowTransparency: true
         });
         this.fit = new FitAddon();
