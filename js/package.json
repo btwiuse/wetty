@@ -20,8 +20,6 @@
         "browserify": "^16.5.0",
         "google-protobuf": "^3.11.1",
         "http": "0.0.0",
-        "libapps": "git+https://github.com/btwiuse/libapps.git#hterm",
-        "libdot": "git+https://github.com/btwiuse/libdot.git#v3.0.9",
         "lodash": "^4.17.19",
         "minimist": "^1.2.5",
         "readline": "^1.3.0",

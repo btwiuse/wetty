@@ -1,11 +1,6 @@
 import { Terminal } from "xterm";
 import { WebglAddon } from 'xterm-addon-webgl';
 import { FitAddon } from 'xterm-addon-fit';
-import { UTF8Decoder } from 'libdot';
-
-// https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
-// the Uatob solution works well except when you receive only part of a multi-byte character
-// that's why we need UTF8Decoder
 
 function detectWebGL2() : boolean {
   // Create canvas element. The canvas is not added to the
@@ -24,7 +19,7 @@ export class Xterm {
     fit: FitAddon;
     webgl: WebglAddon;
     resizeListener: () => void;
-    decoder: UTF8Decoder;
+    decoder: TextDecoder;
 
     message: HTMLElement;
     messageTimeout: number;
@@ -38,7 +33,7 @@ export class Xterm {
         });
         this.fit = new FitAddon();
         this.webgl = new WebglAddon();
-        this.decoder = new UTF8Decoder();
+        this.decoder = new TextDecoder();
 
         this.message = elem.ownerDocument.createElement("div");
         this.message.className = "xterm-overlay";
@@ -72,7 +67,7 @@ export class Xterm {
     };
 
     output(data: string) {
-        this.term.write(this.decoder.decode(data));
+        this.term.write(data);
     };
 
     showMessage(message: string, timeout: number) {
