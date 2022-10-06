@@ -12,4 +12,3 @@ export interface TypeMap {
 }
 
 export const Type: TypeMap;
-

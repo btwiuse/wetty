@@ -1,23 +1,23 @@
 {
   "compilerOptions": {
-      "typeRoots": [
-          "./node_modules/@types"
-      ],
-      "types": [
-        "node"
-      ],
-      "strictNullChecks": false,
-      "noUnusedLocals" : true,
-      "noImplicitThis": true,
-      "alwaysStrict": true,
-      "outDir": "./dist/",
-      "declaration": true,
-      "sourceMap": true,
-      "target": "es6",
-      "module": "commonJS",
-      "baseUrl": "."
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": [
+      "node"
+    ],
+    "strictNullChecks": false,
+    "noUnusedLocals": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "outDir": "./dist/",
+    "declaration": true,
+    "sourceMap": true,
+    "target": "es6",
+    "module": "commonJS",
+    "baseUrl": "."
   },
-    "exclude": [
-      "node_modules"
-    ]
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -8,11 +8,11 @@
  */
 // GENERATED CODE -- DO NOT EDIT!
 
-var jspb = require('google-protobuf');
+var jspb = require("google-protobuf");
 var goog = jspb;
-var global = Function('return this')();
+var global = Function("return this")();
 
-goog.exportSymbol('proto.msg.Type', null, global);
+goog.exportSymbol("proto.msg.Type", null, global);
 /**
  * @enum {number}
  */
@@ -21,7 +21,7 @@ proto.msg.Type = {
   SESSION_OUTPUT: 1,
   SESSION_RESIZE: 2,
   SESSION_CLOSE: 3,
-  CLIENT_CLOSE: 4
+  CLIENT_CLOSE: 4,
 };
 
 goog.object.extend(exports, proto.msg);
