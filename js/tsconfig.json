@@ -13,12 +13,9 @@
       "outDir": "./dist/",
       "declaration": true,
       "sourceMap": true,
-      "target": "es5",
+      "target": "es6",
       "module": "commonJS",
-      "baseUrl": ".",
-      "paths": {
-          "*": ["./typings/*"]
-      }
+      "baseUrl": "."
   },
     "exclude": [
       "node_modules"
