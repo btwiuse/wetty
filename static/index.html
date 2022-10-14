@@ -1,15 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <title></title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="stylesheet" href="./css/index.css" />
     <link rel="stylesheet" href="./css/xterm.css" />
     <link rel="stylesheet" href="./css/xterm_customize.css" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./apple-touch-icon.png"
+    />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#db7093" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
     <div id="terminal"></div>
     <script src="./js/wetty-bundle.js"></script>
+    <script>
+      // Check to make sure the browser supports service workers
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("./sw.js")
+          .then(() => {
+            console.log("Service worker registered");
+          })
+          .catch((err) => {
+            console.log("Service worker registration failed: " + err);
+          });
+      }
+    </script>
   </body>
 </html>

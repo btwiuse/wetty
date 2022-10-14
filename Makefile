@@ -20,6 +20,9 @@ js/dist/static: js/dist/wetty-bundle.js
 	mkdir -p js/dist/static/css
 	cp static/index.html js/dist/static/index.html
 	cp static/favicon.ico js/dist/static/favicon.ico
+	cp static/*.png js/dist/static/
+	cp static/sw.js js/dist/static/sw.js
+	cp static/manifest.json js/dist/static/manifest.json
 	cp js/dist/wetty-bundle.js js/dist/static/js/wetty-bundle.js
 	cp static/index.css js/dist/static/css/index.css
 	cp static/xterm_customize.css js/dist/static/css/xterm_customize.css
