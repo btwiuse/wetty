@@ -1,5 +1,7 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
+import { Unicode11Addon } from "xterm-addon-unicode11";
+import { WebLinksAddon } from "xterm-addon-web-links";
 
 export class Xterm {
   elem: HTMLElement;
@@ -38,6 +40,8 @@ export class Xterm {
     };
 
     this.term.open(elem);
+    this.term.loadAddon(new Unicode11Addon());
+    this.term.loadAddon(new WebLinksAddon());
     this.term.loadAddon(this.fit);
 
     // onopen
@@ -47,6 +51,7 @@ export class Xterm {
     });
 
     this.fit.fit();
+    this.term.focus();
     this.term.onSelectionChange(() => {
       console.log("onSelectionChange:", this.term.getSelection());
     });
