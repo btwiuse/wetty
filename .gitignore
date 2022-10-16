@@ -5,3 +5,7 @@ builds
 js/node_modules/*
 js/dist/*
 /*.log
+dist
+node_modules
+*.tsbuildinfo
+*.lock
