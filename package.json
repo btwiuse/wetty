@@ -21,13 +21,19 @@
   },
   "dependencies": {
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "styled-components": "^5.3.6",
+    "xterm": "^5.0.0",
+    "xterm-addon-fit": "^0.6.0",
+    "xterm-addon-unicode11": "^0.4.0",
+    "xterm-addon-web-links": "^0.7.0"
   },
   "devDependencies": {
     "@btwiuse/serve": "1.0.2",
     "@types/node": "18.11.0",
     "@types/react": "18.0.21",
     "@types/react-dom": "18.0.6",
+    "@types/styled-components": "^5.1.26",
     "concurrently": "7.4.0",
     "esbuild": "0.15.11",
     "rimraf": "3.0.2",
