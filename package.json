@@ -1,0 +1,9 @@
+{
+  "name": "@wetty/terminal",
+  "version": "0.0.0",
+  "description": "WeTTY Terminal powered by xterm.js",
+  "main": "index.js",
+  "repository": "https://github.com/btwiuse/wetty",
+  "author": "navigaid <navigaid@gmail.com>",
+  "license": "MIT"
+}
