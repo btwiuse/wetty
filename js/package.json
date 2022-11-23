@@ -26,7 +26,7 @@
     "readline-browserify": "0.0.4",
     "stream": "0.0.2",
     "terser-webpack-plugin": "^4.2.3",
-    "uglify-js": "^3.7.6",
+    "uglify-js": "^3.17.4",
     "webpack-sources": "^3.2.3",
     "websocket-stream": "^5.5.0",
     "window-size": "^1.1.1",
