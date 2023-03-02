@@ -50,9 +50,10 @@ export class Xterm {
       );
     };
 
+    window.addEventListener("resize", this.resizeListener);
+
     // onopen
     this.resizeListener();
-    // window.addEventListener("resize", this.resizeListener);
 
     this.term.unicode.activeVersion = "11";
     this.term.onSelectionChange(() => {
