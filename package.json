@@ -23,7 +23,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "styled-components": "^5.3.6",
-    "xterm": "^5.0.0",
+    "xterm": "^5.1.0",
     "xterm-addon-fit": "^0.6.0",
     "xterm-addon-unicode11": "^0.4.0",
     "xterm-addon-web-links": "^0.7.0"
