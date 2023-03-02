@@ -29,11 +29,16 @@ export class Xterm {
       cursorStyle: 'underline',
       cursorBlink: true,
     });
-    this.fit = new FitAddon();
 
     this.message = elem.ownerDocument.createElement("div");
     this.message.className = "xterm-overlay";
     this.messageTimeout = 2000;
+
+    this.fit = new FitAddon();
+    this.term.loadAddon(this.fit);
+    this.term.loadAddon(new Unicode11Addon());
+    this.term.loadAddon(new WebLinksAddon());
+    this.term.open(elem);
 
     this.resizeListener = () => {
       console.log("resize:", this.info());
@@ -44,11 +49,6 @@ export class Xterm {
         this.messageTimeout,
       );
     };
-
-    this.term.open(elem);
-    this.term.loadAddon(new Unicode11Addon());
-    this.term.loadAddon(new WebLinksAddon());
-    this.term.loadAddon(this.fit);
 
     // onopen
     this.resizeListener();
