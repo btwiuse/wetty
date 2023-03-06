@@ -54,7 +54,7 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
 
     // throttle resize events
     let doit: ReturnType<typeof setTimeout>;
-    window.onresize = () => {
+    window.visualViewport!.onresize = () => {
       if (doit) clearTimeout(doit);
       doit = setTimeout(()=>{
 	if (document.getElementById(idName)) {
@@ -62,6 +62,8 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
 	  console.log({
 	    width: window.innerWidth,
 	    height: window.innerHeight,
+	    viewportWidth: window.visualViewport!.width,
+	    viewportHeight: window.visualViewport!.height,
 	  })
 	}
       }, 200)

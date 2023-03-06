@@ -50,7 +50,14 @@ export class Xterm {
       );
     };
 
-    window.addEventListener("resize", this.resizeListener);
+    window.visualViewport!.addEventListener("resize", this.resizeListener);
+
+    if (window.visualViewport) {
+      const viewport = window.visualViewport;
+      viewport.addEventListener('resize', ()=>{
+        console.log(viewport.height);
+      });
+    }
 
     // onopen
     this.resizeListener();
@@ -135,7 +142,7 @@ export class Xterm {
   }
 
   close(): void {
-    window.removeEventListener("resize", this.resizeListener);
+    window.visualViewport!.removeEventListener("resize", this.resizeListener);
     this.term.dispose();
   }
 
