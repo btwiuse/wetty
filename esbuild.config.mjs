@@ -13,16 +13,9 @@ esbuild
     },
     minify: !isDevServer,
     sourcemap: true,
-    incremental: isDevServer,
     target: ["chrome58", "firefox57", "safari11", "edge18"],
     define: {
       "process.env.NODE_ENV": isDevServer ? '"development"' : '"production"',
-    },
-    watch: isDevServer && {
-      onRebuild(err) {
-        serve.update();
-        err ? error("❌ Failed") : log("✅ Updated");
-      },
     },
   })
   .catch(() => process.exit(1));
