@@ -23,9 +23,10 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "styled-components": "^5.3.6",
-    "xterm": "^5.1.0",
+    "xterm": "^5.2.0",
     "xterm-addon-fit": "^0.7.0",
     "xterm-addon-unicode11": "^0.5.0",
+    "xterm-addon-web-fonts": "^1.0.1",
     "xterm-addon-web-links": "^0.8.0"
   },
   "devDependencies": {
@@ -37,6 +38,6 @@
     "concurrently": "7.4.0",
     "esbuild": "0.15.11",
     "rimraf": "3.0.2",
-    "typescript": "4.8.4"
+    "typescript": "5.1.3"
   }
 }
