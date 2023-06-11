@@ -18,7 +18,6 @@ interface Props {
 }
 
 function Console({ idName = "terminal", style, sessionId }: Props) {
-
   useEffect(() => {
     const elem = document.getElementById(idName);
 
@@ -36,16 +35,16 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
     term = new Xterm(elem);
     term.setCmd(["bash"]);
     term.setEnv({
-      'USER_AGENT': window.navigator.userAgent,
-      'SESSION_ID': sessionId ?? '',
-    })
+      "USER_AGENT": window.navigator.userAgent,
+      "SESSION_ID": sessionId ?? "",
+    });
 
     term.fit.fit();
     term.focus();
 
     // factory (websocket backend)
     // const httpsEnabled = window.location.protocol == "https:";
-    const url = `${window.origin.replace(/^http/, 'ws')}/terminal`;
+    const url = `${window.origin.replace(/^http/, "ws")}/terminal`;
     const factory = new TransportFactory(url, protocols);
 
     // wetty (hub)
@@ -56,17 +55,17 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
     let doit: ReturnType<typeof setTimeout>;
     window.visualViewport!.onresize = () => {
       if (doit) clearTimeout(doit);
-      doit = setTimeout(()=>{
-	if (document.getElementById(idName)) {
-	  term.fit.fit()
-	  console.log({
-	    width: window.innerWidth,
-	    height: window.innerHeight,
-	    viewportWidth: window.visualViewport!.width,
-	    viewportHeight: window.visualViewport!.height,
-	  })
-	}
-      }, 200)
+      doit = setTimeout(() => {
+        if (document.getElementById(idName)) {
+          term.fit.fit();
+          console.log({
+            width: window.innerWidth,
+            height: window.innerHeight,
+            viewportWidth: window.visualViewport!.width,
+            viewportHeight: window.visualViewport!.height,
+          });
+        }
+      }, 200);
     };
 
     window.addEventListener("unload", () => {
@@ -76,14 +75,12 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
 
     return () => {
       // Anything in here is fired on component unmount.
-      term.mute()
-      closer()
-    }
+      term.mute();
+      closer();
+    };
   }, []);
 
-  return (
-    <div id={idName} style={style}></div>
-  );
+  return <div id={idName} style={style}></div>;
 }
 
 export default React.memo(

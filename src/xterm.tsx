@@ -17,7 +17,7 @@ export class Xterm {
   messageTimeout: number;
   messageTimer?: number;
   cmd?: string[];
-  env?: {[key: string]: string};
+  env?: { [key: string]: string };
 
   constructor(elem: HTMLElement) {
     this.elem = elem;
@@ -26,7 +26,7 @@ export class Xterm {
         "DejaVu Sans Mono, Everson Mono, FreeMono, Menlo, Terminal, monospace, Apple Symbols",
       allowTransparency: true,
       allowProposedApi: true,
-      cursorStyle: 'underline',
+      cursorStyle: "underline",
       cursorBlink: true,
     });
 
@@ -54,7 +54,7 @@ export class Xterm {
 
     if (window.visualViewport) {
       const viewport = window.visualViewport;
-      viewport.addEventListener('resize', ()=>{
+      viewport.addEventListener("resize", () => {
         console.log(viewport.height);
       });
     }
@@ -89,7 +89,7 @@ export class Xterm {
   }
 
   showMessage(message: string, timeout: number) {
-    if (this.isMuted) return
+    if (this.isMuted) return;
     this.message.textContent = message;
     this.elem.appendChild(this.message);
 
@@ -134,11 +134,11 @@ export class Xterm {
   }
 
   setCmd(c: string[]): void {
-    this.cmd = c
+    this.cmd = c;
   }
 
-  setEnv(e: {[key: string]: string}): void {
-    this.env = e
+  setEnv(e: { [key: string]: string }): void {
+    this.env = e;
   }
 
   close(): void {

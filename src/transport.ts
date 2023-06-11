@@ -47,7 +47,14 @@ export class Transport {
     this.ws.send(this.str2ab(json + "\n"));
   }
 
-  resizeWithCmdEnv(x: {cols: number, rows: number, cmd?: string[], env?: {[key: string]: string}}) {
+  resizeWithCmdEnv(
+    x: {
+      cols: number;
+      rows: number;
+      cmd?: string[];
+      env?: { [key: string]: string };
+    },
+  ) {
     let y: any = {
       "version": 2,
       "width": x.cols,

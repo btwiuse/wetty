@@ -14,10 +14,10 @@ export interface Terminal {
   deactivate(): void;
   close(): void;
   cmd?: string[];
-  env?: {[key: string]: string};
+  env?: { [key: string]: string };
   setCmd(c: string[]): void;
-  setEnv(c: {[key: string]: string}): void;
-  fit: {fit: ()=>void};
+  setEnv(c: { [key: string]: string }): void;
+  fit: { fit: () => void };
   mute(): void;
   focus(): void;
 }
@@ -31,10 +31,10 @@ export interface Transport {
   onMessage(callback: (ev: MessageEvent) => void): void;
   onClose(callback: (ev: CloseEvent) => void): void;
   resizeWithCmdEnv(x: {
-    cols: number,
-    rows: number,
-    cmd?: string[],
-    env?: {[key: string]: string},
+    cols: number;
+    rows: number;
+    cmd?: string[];
+    env?: { [key: string]: string };
   }): void;
 }
 
@@ -72,8 +72,8 @@ export class WeTTY {
         transport.resizeWithCmdEnv({
           cols: termInfo.cols,
           rows: termInfo.rows,
-          cmd:	this.term.cmd,
-          env:	this.term.env,
+          cmd: this.term.cmd,
+          env: this.term.env,
         });
 
         this.term.onResize(resizeHandler);
@@ -96,7 +96,7 @@ export class WeTTY {
 
     setup();
     return () => {
-      console.log('transport.close');
+      console.log("transport.close");
       transport.close();
     };
   }
