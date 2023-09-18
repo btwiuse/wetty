@@ -25,7 +25,7 @@
     "styled-components": "^5.3.6",
     "xterm": "^5.2.0",
     "xterm-addon-fit": "^0.7.0",
-    "xterm-addon-unicode11": "^0.5.0",
+    "xterm-addon-unicode11": "^0.6.0",
     "xterm-addon-web-links": "^0.9.0"
   },
   "devDependencies": {
