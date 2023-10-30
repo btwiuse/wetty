@@ -5,6 +5,21 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { Unicode11Addon } from "xterm-addon-unicode11";
 import { WebLinksAddon } from "xterm-addon-web-links";
+import { ImageAddon, IImageAddonOptions } from 'xterm-addon-image';
+
+// customize as needed (showing addon defaults)
+const customSettings: IImageAddonOptions = {
+  enableSizeReports: true,    // whether to enable CSI t reports (see below)
+  pixelLimit: 16777216,       // max. pixel size of a single image
+  sixelSupport: true,         // enable sixel support
+  sixelScrolling: true,       // whether to scroll on image output
+  sixelPaletteLimit: 256,     // initial sixel palette size
+  sixelSizeLimit: 25000000,   // size limit of a single sixel sequence
+  storageLimit: 128,          // FIFO storage limit in MB
+  showPlaceholder: true,      // whether to show a placeholder for evicted images
+  iipSupport: true,           // enable iTerm IIP support
+  iipSizeLimit: 20000000      // size limit of a single IIP sequence
+}
 
 export class Xterm {
   elem: HTMLElement;
@@ -38,6 +53,8 @@ export class Xterm {
     this.term.loadAddon(this.fit);
     this.term.loadAddon(new Unicode11Addon());
     this.term.loadAddon(new WebLinksAddon());
+    const imageAddon = new ImageAddon(customSettings);
+    this.term.loadAddon(imageAddon);
     this.term.open(elem);
 
     this.resizeListener = () => {
