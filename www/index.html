@@ -16,6 +16,25 @@
     <link rel="manifest" href="./manifest.json" />
     <meta name="theme-color" content="#db7093" />
     <title></title>
+    <script type="importmap">
+      {
+        "imports": {
+          "eruda": "https://esm.sh/eruda",
+          "yaml": "https://esm.sh/yaml",
+          "browser-fs-access": "https://esm.sh/browser-fs-access/dist/index.modern.js",
+          "preact": "https://esm.sh/preact@10.19.2",
+          "preact/": "https://esm.sh/preact@10.19.2/",
+          "htm/preact": "https://esm.sh/htm@3.1.1/preact?external=preact",
+          "@gear-js/api": "https://esm.sh/@gear-js/api",
+          "@polkadot/types": "https://esm.sh/@polkadot/types",
+          "@polkadot/util": "https://esm.sh/@polkadot/util",
+          "@polkadot/util-crypto": "https://esm.sh/@polkadot/util-crypto",
+          "@polkadot/extension-dapp": "https://esm.sh/@polkadot/extension-dapp",
+          "@polkadot/ui-keyring": "https://esm.sh/@polkadot/ui-keyring",
+          "@polkadot/api": "https://esm.sh/@polkadot/api"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
@@ -33,6 +52,10 @@
             console.log("Service worker registration failed: " + err);
           });
       }
+    </script>
+    <script type="module" async>
+      import eruda from "eruda";
+      eruda.init();
     </script>
   </body>
 </html>
