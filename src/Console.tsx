@@ -44,7 +44,9 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
 
     // factory (websocket backend)
     // const httpsEnabled = window.location.protocol == "https:";
-    const url = `${window.origin.replace(/^http/, "ws")}/terminal`;
+    const url = window.location.pathname.endsWith("/")
+      ? `${window.location.href.replace(/^http/, "ws")}terminal`
+      : `${window.location.href.replace(/^http/, "ws")}/terminal`;
     const factory = new TransportFactory(url, protocols);
 
     // wetty (hub)
