@@ -8,7 +8,7 @@ import { protocols, Terminal, WeTTY } from "./wetty";
 import { TransportFactory } from "./transport";
 
 import styled from "styled-components";
-import "xterm/css/xterm.css";
+import "@xterm/xterm/css/xterm.css";
 import "./xterm_customize.css";
 
 interface Props {

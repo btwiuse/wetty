@@ -1,11 +1,11 @@
 // Copyright 2017-2022 @polkadot/app-btwiuse authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Terminal } from "xterm";
-import { FitAddon } from "xterm-addon-fit";
-import { Unicode11Addon } from "xterm-addon-unicode11";
-import { WebLinksAddon } from "xterm-addon-web-links";
-import { ImageAddon, IImageAddonOptions } from 'xterm-addon-image';
+import { Terminal } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import { Unicode11Addon } from "@xterm/addon-unicode11";
+import { WebLinksAddon } from "@xterm/addon-web-links";
+import { ImageAddon, IImageAddonOptions } from '@xterm/addon-image';
 
 // customize as needed (showing addon defaults)
 const customSettings: IImageAddonOptions = {
