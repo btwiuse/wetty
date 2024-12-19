@@ -20,7 +20,7 @@ export class Transport {
   //online: (data: string) => void;
   enc: TextEncoder;
 
-  str2ab(str: string): ArrayBuffer {
+  str2ab(str: string): Uint8Array {
     return this.enc.encode(str);
   }
 

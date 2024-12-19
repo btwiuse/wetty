@@ -55,7 +55,6 @@ export class WeTTY {
 
   open() {
     let transport = this.transportFactory.create();
-    let pingTimer: number;
 
     const setup = () => {
       transport.onOpen(() => {
@@ -86,7 +85,6 @@ export class WeTTY {
       });
 
       transport.onClose(() => {
-        clearInterval(pingTimer);
         this.term.deactivate();
         this.term.showMessage("Connection Closed", 0);
       });
