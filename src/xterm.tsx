@@ -91,6 +91,20 @@ export class Xterm {
         );
       });
     });
+
+    this.term.attachCustomKeyEventHandler((event: KeyboardEvent) => {
+      console.log('Key event:', {
+        type: event.type,
+        key: event.key,
+        code: event.code,
+        keyCode: event.keyCode,
+        ctrlKey: event.ctrlKey,
+        metaKey: event.metaKey,
+        altKey: event.altKey,
+        shiftKey: event.shiftKey
+      });
+      return true;  // let all events pass through
+    });
   }
 
   info(): { cols: number; rows: number } {
