@@ -103,6 +103,12 @@ export class Xterm {
         altKey: event.altKey,
         shiftKey: event.shiftKey
       });
+      if (event.type === 'keydown' && event.ctrlKey && event.key === 'c') {
+        event.preventDefault();
+        // Send ETX (ASCII 3) instead of CR (ASCII 13)
+        this.term.write('\x03');
+        return false;
+      }
       return true;  // let all events pass through
     });
   }
