@@ -27,6 +27,7 @@ export class Xterm {
   fit: FitAddon;
   resizeListener: () => void;
   isMuted: boolean = false;
+  onInputCallback: (input: string) => void;
 
   message: HTMLElement;
   messageTimeout: number;
@@ -35,6 +36,7 @@ export class Xterm {
   env?: { [key: string]: string };
 
   constructor(elem: HTMLElement) {
+    this.onInputCallback = () => {};
     this.elem = elem;
     this.term = new Terminal({
       fontFamily:
@@ -106,7 +108,8 @@ export class Xterm {
       if (event.type === 'keydown' && event.ctrlKey && event.key === 'c') {
         event.preventDefault();
         // Send ETX (ASCII 3) instead of CR (ASCII 13)
-        this.term.write('\x03');
+        // console.log("sending ctrl-c");
+        this.onInputCallback('\x03');
         return false;
       }
       return true;  // let all events pass through
@@ -150,6 +153,7 @@ export class Xterm {
     this.term.onData((data) => {
       callback(data);
     });
+    this.onInputCallback = callback;
   }
 
   onResize(callback: (cols: number, rows: number) => void) {
