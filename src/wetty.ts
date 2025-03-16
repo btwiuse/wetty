@@ -53,46 +53,47 @@ export class WeTTY {
     this.transportFactory = transportFactory;
   }
 
+  setup(transport: Transport) {
+    transport.onOpen(() => {
+      const termInfo = this.term.info();
+
+      const resizeHandler = (cols: number, rows: number) => {
+        transport.resize(cols, rows);
+      };
+
+      const inputHandler = (input: string) => {
+        transport.input(input);
+      };
+
+      transport.resizeWithCmdEnv({
+        cols: termInfo.cols,
+        rows: termInfo.rows,
+        cmd: this.term.cmd,
+        env: this.term.env,
+      });
+
+      this.term.onResize(resizeHandler);
+      this.term.onInput(inputHandler);
+    });
+
+    transport.onMessage((event) => {
+      var json = JSON.parse(this.decoder.decode(event.data));
+      this.term.output(json[2]);
+    });
+
+    transport.onClose(() => {
+      this.term.deactivate();
+      this.term.showMessage("Connection Closed", 0);
+    });
+
+    transport.open();
+  }
+
   open() {
     let transport = this.transportFactory.create();
 
-    const setup = () => {
-      transport.onOpen(() => {
-        const termInfo = this.term.info();
+    this.setup(transport);
 
-        const resizeHandler = (cols: number, rows: number) => {
-          transport.resize(cols, rows);
-        };
-
-        const inputHandler = (input: string) => {
-          transport.input(input);
-        };
-
-        transport.resizeWithCmdEnv({
-          cols: termInfo.cols,
-          rows: termInfo.rows,
-          cmd: this.term.cmd,
-          env: this.term.env,
-        });
-
-        this.term.onResize(resizeHandler);
-        this.term.onInput(inputHandler);
-      });
-
-      transport.onMessage((event) => {
-        var json = JSON.parse(this.decoder.decode(event.data));
-        this.term.output(json[2]);
-      });
-
-      transport.onClose(() => {
-        this.term.deactivate();
-        this.term.showMessage("Connection Closed", 0);
-      });
-
-      transport.open();
-    };
-
-    setup();
     return () => {
       console.log("transport.close");
       transport.close();
