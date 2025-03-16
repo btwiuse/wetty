@@ -1,8 +1,6 @@
 // Copyright 2017-2022 @polkadot/app-btwiuse authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { IDisposable } from "@xterm/xterm";
-
 export const protocols = [];
 
 export interface Terminal {
@@ -10,9 +8,10 @@ export interface Terminal {
   output(data: string): void;
   showMessage(message: string, timeout: number): void;
   removeMessage(): void;
-  onInput(callback: (input: string) => void): IDisposable;
+  onInput(callback: (input: string) => void): void;
   onResize(callback: (cols: number, rows: number) => void): void;
   reset(): void;
+  activate(): void;
   deactivate(): void;
   close(): void;
   cmd?: string[];
@@ -47,7 +46,6 @@ export interface TransportFactory {
 export class WeTTY {
   decoder: TextDecoder;
   term: Terminal;
-  termIDisposable: IDisposable;
   transportFactory: TransportFactory;
   transport: Transport;
 
@@ -56,9 +54,6 @@ export class WeTTY {
     this.term = term;
     this.transportFactory = transportFactory;
     this.transport = null as unknown as Transport;
-    this.termIDisposable = {
-      dispose: () => {},
-    };
   }
 
   setup(transport: Transport) {
@@ -81,7 +76,7 @@ export class WeTTY {
       });
 
       this.term.onResize(resizeHandler);
-      this.termOnInput(inputHandler);
+      this.term.onInput(inputHandler);
     });
 
     transport.onMessage((event) => {
@@ -90,21 +85,18 @@ export class WeTTY {
     });
 
     transport.onClose(() => {
-      // this.term.deactivate();
+      this.term.deactivate();
       this.term.showMessage("Connection Closed.", 0);
-      this.termOnInput((_: string) => {
+      this.term.onResize(() => {});
+      this.term.onInput(() => {
         this.term.removeMessage();
         this.term.showMessage("Reconnecting...", 1000);
         this.open();
       });
     });
 
+    this.term.activate();
     transport.open();
-  }
-
-  termOnInput(callback: (input: string) => void) {
-    this.termIDisposable.dispose();
-    this.termIDisposable = this.term.onInput(callback);
   }
 
   open() {

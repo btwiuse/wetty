@@ -28,6 +28,7 @@ export class Xterm {
   resizeListener: () => void;
   isMuted: boolean = false;
   onInputCallback: (input: string) => void;
+  disposables: IDisposable[] = [];
 
   message: HTMLElement;
   messageTimeout: number;
@@ -149,24 +150,33 @@ export class Xterm {
     }
   }
 
-  onInput(callback: (input: string) => void): IDisposable {
+  onInput(callback: (input: string) => void) {
     this.onInputCallback = callback;
-    return this.term.onData((data) => {
+    this.disposables.push(this.term.onData((data) => {
       callback(data);
-    });
+    }));
   }
 
   onResize(callback: (cols: number, rows: number) => void) {
-    this.term.onResize((data) => {
-      // console.log("onresize");
+    this.disposables.push(this.term.onResize((data) => {
       callback(data.cols, data.rows);
-    });
+    }));
   }
 
   deactivate(): void {
     // this.term.off("data", (...args: any[]) => {});
     // this.term.off("resize", (...args: any[]) => {});
     this.term.blur();
+    while (this.disposables.length > 0) {
+      this.disposables.pop()!.dispose();
+    }
+  }
+
+  activate(): void {
+    this.term.focus();
+    while (this.disposables.length > 0) {
+      this.disposables.pop()!.dispose();
+    }
   }
 
   reset(): void {
