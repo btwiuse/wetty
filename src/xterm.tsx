@@ -1,25 +1,25 @@
 // Copyright 2017-2022 @polkadot/app-btwiuse authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Terminal } from "@xterm/xterm";
+import { IDisposable, Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { WebLinksAddon } from "@xterm/addon-web-links";
-import { ImageAddon, IImageAddonOptions } from '@xterm/addon-image';
+import { IImageAddonOptions, ImageAddon } from "@xterm/addon-image";
 
 // customize as needed (showing addon defaults)
 const customSettings: IImageAddonOptions = {
-  enableSizeReports: true,    // whether to enable CSI t reports (see below)
-  pixelLimit: 16777216,       // max. pixel size of a single image
-  sixelSupport: true,         // enable sixel support
-  sixelScrolling: true,       // whether to scroll on image output
-  sixelPaletteLimit: 256,     // initial sixel palette size
-  sixelSizeLimit: 25000000,   // size limit of a single sixel sequence
-  storageLimit: 128,          // FIFO storage limit in MB
-  showPlaceholder: true,      // whether to show a placeholder for evicted images
-  iipSupport: true,           // enable iTerm IIP support
-  iipSizeLimit: 20000000      // size limit of a single IIP sequence
-}
+  enableSizeReports: true, // whether to enable CSI t reports (see below)
+  pixelLimit: 16777216, // max. pixel size of a single image
+  sixelSupport: true, // enable sixel support
+  sixelScrolling: true, // whether to scroll on image output
+  sixelPaletteLimit: 256, // initial sixel palette size
+  sixelSizeLimit: 25000000, // size limit of a single sixel sequence
+  storageLimit: 128, // FIFO storage limit in MB
+  showPlaceholder: true, // whether to show a placeholder for evicted images
+  iipSupport: true, // enable iTerm IIP support
+  iipSizeLimit: 20000000, // size limit of a single IIP sequence
+};
 
 export class Xterm {
   elem: HTMLElement;
@@ -95,7 +95,7 @@ export class Xterm {
     });
 
     this.term.attachCustomKeyEventHandler((event: KeyboardEvent) => {
-      console.log('Key event:', {
+      console.log("Key event:", {
         type: event.type,
         key: event.key,
         code: event.code,
@@ -103,16 +103,16 @@ export class Xterm {
         ctrlKey: event.ctrlKey,
         metaKey: event.metaKey,
         altKey: event.altKey,
-        shiftKey: event.shiftKey
+        shiftKey: event.shiftKey,
       });
-      if (event.type === 'keydown' && event.ctrlKey && event.key === 'c') {
+      if (event.type === "keydown" && event.ctrlKey && event.key === "c") {
         event.preventDefault();
         // Send ETX (ASCII 3) instead of CR (ASCII 13)
         // console.log("sending ctrl-c");
-        this.onInputCallback('\x03');
+        this.onInputCallback("\x03");
         return false;
       }
-      return true;  // let all events pass through
+      return true; // let all events pass through
     });
   }
 
@@ -149,11 +149,11 @@ export class Xterm {
     }
   }
 
-  onInput(callback: (input: string) => void) {
-    this.term.onData((data) => {
+  onInput(callback: (input: string) => void): IDisposable {
+    this.onInputCallback = callback;
+    return this.term.onData((data) => {
       callback(data);
     });
-    this.onInputCallback = callback;
   }
 
   onResize(callback: (cols: number, rows: number) => void) {

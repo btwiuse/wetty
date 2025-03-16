@@ -51,7 +51,7 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
 
     // wetty (hub)
     const wt = new WeTTY(term, factory);
-    const closer = wt.open();
+    wt.open();
 
     // throttle resize events
     let doit: ReturnType<typeof setTimeout>;
@@ -71,14 +71,14 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
     };
 
     window.addEventListener("unload", () => {
-      closer();
+      wt.close();
       term.close();
     });
 
     return () => {
       // Anything in here is fired on component unmount.
       term.mute();
-      closer();
+      wt.close();
     };
   }, []);
 

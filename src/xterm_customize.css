@@ -1,25 +1,39 @@
 .xterm {
-    position: absolute !important;
-    width: 100%;
-    height: 100%;
+  position: absolute !important;
+  width: 100%;
+  height: 100%;
 }
 
 .terminal {
-    font-family: "DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, "Apple Symbols";
+  font-family:
+    "DejaVu Sans Mono",
+    "Everson Mono",
+    FreeMono,
+    Menlo,
+    Terminal,
+    monospace,
+    "Apple Symbols";
 }
 
 .xterm-overlay {
-    font-family: "DejaVu Sans Mono", "Everson Mono", FreeMono, Menlo, Terminal, monospace, "Apple Symbols";
-    border-radius: 15px;
-    font-size: xx-large;
-    color: black;
-    background: white;
-    opacity: 0.75;
-    padding: 0.2em 0.5em 0.2em 0.5em;
-    position: absolute;
-    top: 50vh;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    user-select: none;
-    transition: opacity 180ms ease-in;
+  font-family:
+    "DejaVu Sans Mono",
+    "Everson Mono",
+    FreeMono,
+    Menlo,
+    Terminal,
+    monospace,
+    "Apple Symbols";
+  border-radius: 15px;
+  font-size: xx-large;
+  color: black;
+  background: white;
+  opacity: 0.75;
+  padding: 0.2em 0.5em 0.2em 0.5em;
+  position: absolute;
+  top: 50vh;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  transition: opacity 180ms ease-in;
 }
