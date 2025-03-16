@@ -17,6 +17,30 @@ interface Props {
   style?: any;
 }
 
+function autoPrefix(url: string) {
+  if (!URL.canParse(url)) {
+    const httpsEnabled = window.location.protocol == "https:";
+    const prefix = httpsEnabled ? "wss://" : "ws://";
+    return prefix + url;
+  }
+
+  let parsedUrl = URL.parse(url)!;
+  switch (parsedUrl.protocol) {
+    case "http:":
+    case "ws:":
+      parsedUrl.protocol = "ws:";
+      break;
+    case "https:":
+    case "wss:":
+      parsedUrl.protocol = "wss:";
+      break;
+    default:
+      throw new Error("Unsupported protocol: " + parsedUrl.protocol);
+  }
+
+  return parsedUrl.toString();
+}
+
 function Console({ idName = "terminal", style, sessionId }: Props) {
   useEffect(() => {
     const elem = document.getElementById(idName);
@@ -43,11 +67,12 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
     term.focus();
 
     // factory (websocket backend)
-    // const httpsEnabled = window.location.protocol == "https:";
-    const url = window.location.pathname.endsWith("/")
-      ? `${window.location.href.replace(/^http/, "ws")}terminal`
-      : `${window.location.href.replace(/^http/, "ws")}/terminal`;
-    const factory = new TransportFactory(url, protocols);
+    const localUrl = new URL("/terminal", window.location.href).toString();
+    const queryUrl = new URLSearchParams(window.location.search).get(
+      "terminal",
+    );
+    const terminalUrl = autoPrefix(queryUrl || localUrl);
+    const factory = new TransportFactory(terminalUrl, protocols);
 
     // wetty (hub)
     const wt = new WeTTY(term, factory);
