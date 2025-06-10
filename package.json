@@ -36,7 +36,7 @@
     "@types/react-dom": "19.1.5",
     "@types/styled-components": "^5.1.26",
     "concurrently": "9.1.2",
-    "esbuild": "0.25.4",
+    "esbuild": "0.25.5",
     "rimraf": "6.0.1",
     "typescript": "5.8.3"
   },
