@@ -38,7 +38,7 @@
     "concurrently": "9.2.0",
     "esbuild": "0.25.9",
     "rimraf": "6.0.1",
-    "typescript": "5.8.3"
+    "typescript": "5.9.2"
   },
   "packageManager": "yarn@1.22.1"
 }
