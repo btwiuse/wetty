@@ -1,6 +1,8 @@
 // Copyright 2017-2022 @polkadot/app-btwiuse authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { PROTOCOL_VERSION, INPUT_CHUNK_SIZE, ResizeMessage } from "./protocol";
+
 export class TransportFactory {
   url: string;
   protocols: string[];
@@ -39,12 +41,12 @@ export class Transport {
   }
 
   resize(cols: number, rows: number) {
-    let json = JSON.stringify({
-      "version": 2,
-      "width": cols,
-      "height": rows,
-    });
-    this.ws.send(this.str2ab(json + "\n"));
+    const msg: ResizeMessage = {
+      version: PROTOCOL_VERSION,
+      width: cols,
+      height: rows,
+    };
+    this.ws.send(this.str2ab(JSON.stringify(msg) + "\n"));
   }
 
   resizeWithCmdEnv(
@@ -52,27 +54,25 @@ export class Transport {
       cols: number;
       rows: number;
       cmd?: string[];
-      env?: { [key: string]: string };
+      env?: Record<string, string>;
     },
   ) {
-    let y: any = {
-      "version": 2,
-      "width": x.cols,
-      "height": x.rows,
+    const msg: ResizeMessage = {
+      version: PROTOCOL_VERSION,
+      width: x.cols,
+      height: x.rows,
     };
-    if (x.cmd) y.command = x.cmd;
-    if (x.env) y.env = x.env;
-    let json = JSON.stringify(y);
-    this.ws.send(this.str2ab(json + "\n"));
+    if (x.cmd) msg.command = x.cmd;
+    if (x.env) msg.env = x.env;
+    this.ws.send(this.str2ab(JSON.stringify(msg) + "\n"));
   }
 
   input(data: string) {
     // https://stackoverflow.com/a/29202760/4602592
-    let size = 4000;
-    let numChunks = Math.ceil(data.length / size);
-    for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
-      let chunk = data.substr(o, size);
-      let json = JSON.stringify([0, "i", chunk]);
+    const numChunks = Math.ceil(data.length / INPUT_CHUNK_SIZE);
+    for (let i = 0, o = 0; i < numChunks; ++i, o += INPUT_CHUNK_SIZE) {
+      const chunk = data.substring(o, o + INPUT_CHUNK_SIZE);
+      const json = JSON.stringify([0, "i", chunk]);
       this.ws.send(this.str2ab(json + "\n"));
     }
   }

@@ -1,6 +1,8 @@
 // Copyright 2017-2022 @polkadot/app-btwiuse authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { OutputMessage } from "./protocol";
+
 export const protocols = [];
 
 export interface Terminal {
@@ -15,9 +17,9 @@ export interface Terminal {
   deactivate(): void;
   close(): void;
   cmd?: string[];
-  env?: { [key: string]: string };
+  env?: Record<string, string>;
   setCmd(c: string[]): void;
-  setEnv(c: { [key: string]: string }): void;
+  setEnv(c: Record<string, string>): void;
   fit: { fit: () => void };
   mute(): void;
   focus(): void;
@@ -35,7 +37,7 @@ export interface Transport {
     cols: number;
     rows: number;
     cmd?: string[];
-    env?: { [key: string]: string };
+    env?: Record<string, string>;
   }): void;
 }
 
@@ -80,8 +82,12 @@ export class WeTTY {
     });
 
     transport.onMessage((event) => {
-      var json = JSON.parse(this.decoder.decode(event.data));
-      this.term.output(json[2]);
+      try {
+        const msg: OutputMessage = JSON.parse(this.decoder.decode(event.data));
+        this.term.output(msg[2]);
+      } catch (e) {
+        console.error("Failed to parse message:", e);
+      }
     });
 
     transport.onClose(() => {
