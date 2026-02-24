@@ -86,7 +86,8 @@ export class WeTTY {
         const msg: OutputMessage = JSON.parse(this.decoder.decode(event.data));
         this.term.output(msg[2]);
       } catch (e) {
-        console.error("Failed to parse message:", e);
+        const raw = this.decoder.decode(event.data);
+        console.error("Failed to parse message:", e, "Data:", raw.substring(0, 200));
       }
     });
 
