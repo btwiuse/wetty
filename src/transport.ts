@@ -1,7 +1,7 @@
 // Copyright 2017-2022 @polkadot/app-btwiuse authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { PROTOCOL_VERSION, INPUT_CHUNK_SIZE, ResizeMessage } from "./protocol";
+import { PROTOCOL_VERSION, INPUT_CHUNK_SIZE, InputMessage, ResizeMessage } from "./protocol";
 
 export class TransportFactory {
   url: string;
@@ -72,7 +72,8 @@ export class Transport {
     const numChunks = Math.ceil(data.length / INPUT_CHUNK_SIZE);
     for (let i = 0, o = 0; i < numChunks; ++i, o += INPUT_CHUNK_SIZE) {
       const chunk = data.substring(o, o + INPUT_CHUNK_SIZE);
-      const json = JSON.stringify([0, "i", chunk]);
+      const msg: InputMessage = [0, "i", chunk];
+      const json = JSON.stringify(msg);
       this.ws.send(this.str2ab(json + "\n"));
     }
   }

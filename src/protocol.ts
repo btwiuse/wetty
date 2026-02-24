@@ -12,4 +12,6 @@ export interface ResizeMessage {
   env?: Record<string, string>;
 }
 
+export type InputMessage = [number, string, string];
+
 export type OutputMessage = [number, string, string];
