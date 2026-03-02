@@ -20,7 +20,7 @@
     "test": "echo 'TODO'"
   },
   "dependencies": {
-    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/addon-fit": "^0.11.0",
     "@xterm/addon-image": "^0.9.0",
     "@xterm/addon-unicode11": "^0.8.0",
     "@xterm/addon-web-links": "^0.12.0",
