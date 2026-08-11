@@ -100,13 +100,12 @@ export class Ghostty {
         shiftKey: event.shiftKey,
       });
       if (event.type === "keydown" && event.ctrlKey && event.key === "c") {
-        event.preventDefault();
         // Send ETX (ASCII 3) instead of CR (ASCII 13)
         // console.log("sending ctrl-c");
         this.onInputCallback("\x03");
-        return false;
+        return true;
       }
-      return true; // let all events pass through
+      return false; // let terminal process the key normally
     });
   }
 
