@@ -13,7 +13,7 @@ esbuild
     },
     minify: !isDevServer,
     sourcemap: true,
-    target: ["chrome58", "firefox57", "safari11", "edge18"],
+    target: ["chrome110", "firefox110", "safari16", "edge110"],
     define: {
       "process.env.NODE_ENV": isDevServer ? '"development"' : '"production"',
     },
