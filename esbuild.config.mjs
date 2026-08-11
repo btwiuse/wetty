@@ -22,7 +22,7 @@ esbuild
 
 if (isDevServer) {
   serve.start({
-    port: 5000,
+    port: process.env.PORT ?? 5000,
     root: "./www",
     live: true,
   });

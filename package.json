@@ -1,7 +1,7 @@
 {
   "name": "@wetty/terminal",
   "version": "0.0.0",
-  "description": "WeTTY Terminal powered by xterm.js",
+  "description": "WeTTY Terminal powered by ghostty-web",
   "main": "index.js",
   "repository": "https://github.com/btwiuse/wetty",
   "author": "navigaid <navigaid@gmail.com>",
@@ -9,7 +9,8 @@
   "keywords": [
     "react",
     "typescript",
-    "xterm.js",
+    "ghostty-web",
+    "ghostty",
     "wetty"
   ],
   "scripts": {
@@ -20,11 +21,7 @@
     "test": "echo 'TODO'"
   },
   "dependencies": {
-    "@xterm/addon-fit": "^0.12.0-beta.299",
-    "@xterm/addon-image": "^0.10.0-beta.299",
-    "@xterm/addon-unicode11": "^0.10.0-beta.299",
-    "@xterm/addon-web-links": "^0.13.0-beta.299",
-    "@xterm/xterm": "^6.1.0-beta.302",
+    "ghostty-web": "github:NimbleMarkets/ghostty-web#nm-kitty-built",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "styled-components": "^6.1.0"

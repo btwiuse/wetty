@@ -3,12 +3,12 @@
 
 import React from "react";
 import { useEffect } from "react";
-import { Xterm } from "./xterm";
+import { init } from "ghostty-web";
+import { Ghostty } from "./ghostty";
 import { protocols, Terminal, WeTTY } from "./wetty";
 import { TransportFactory } from "./transport";
 
 import styled from "styled-components";
-import "@xterm/xterm/css/xterm.css";
 import "./xterm_customize.css";
 
 interface Props {
@@ -45,8 +45,6 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
   useEffect(() => {
     const elem = document.getElementById(idName);
 
-    let id = "undefined";
-
     if (elem == null) return;
 
     // https://stackoverflow.com/questions/61254372/my-react-component-is-rendering-twice-because-of-strict-mode
@@ -54,56 +52,95 @@ function Console({ idName = "terminal", style, sessionId }: Props) {
     // use this trick to maintain idempotency
     while (elem.childElementCount > 0) elem.removeChild(elem.childNodes[0]);
 
-    // term (frontend)
-    var term: Terminal;
-    term = new Xterm(elem);
-    term.setCmd(["bash"]);
-    term.setEnv({
-      "USER_AGENT": window.navigator.userAgent,
-      "SESSION_ID": sessionId ?? "",
-    });
+    let active = true;
+    let term: Terminal | null = null;
+    let wt: WeTTY | null = null;
+    let onUnload: (() => void) | null = null;
 
-    term.fit.fit();
-    term.focus();
+    (async () => {
+      // Load the Ghostty WASM module before constructing a Terminal.
+      try {
+        await init();
+      } catch (err) {
+        if (!active) return;
+        const errEl = elem.ownerDocument.createElement("div");
+        errEl.className = "xterm-overlay";
+        errEl.textContent =
+          "Failed to load terminal: " + (err as Error).message;
+        elem.appendChild(errEl);
+        return;
+      }
+      if (!active) return;
 
-    // factory (websocket backend)
-    const localUrl = new URL("/terminal", window.location.href).toString();
-    const queryUrl = new URLSearchParams(window.location.search).get(
-      "terminal",
-    );
-    const terminalUrl = autoPrefix(queryUrl || localUrl);
-    const factory = new TransportFactory(terminalUrl, protocols);
+      // term (frontend)
+      term = new Ghostty(elem);
+      term.setCmd(["bash"]);
+      term.setEnv({
+        "USER_AGENT": window.navigator.userAgent,
+        "SESSION_ID": sessionId ?? "",
+      });
 
-    // wetty (hub)
-    const wt = new WeTTY(term, factory);
-    wt.open();
+      term.fit.fit();
+      term.focus();
 
-    // throttle resize events
-    let doit: ReturnType<typeof setTimeout>;
-    window.visualViewport!.onresize = () => {
-      if (doit) clearTimeout(doit);
-      doit = setTimeout(() => {
-        if (document.getElementById(idName)) {
-          term.fit.fit();
-          console.log({
-            width: window.innerWidth,
-            height: window.innerHeight,
-            viewportWidth: window.visualViewport!.width,
-            viewportHeight: window.visualViewport!.height,
-          });
-        }
-      }, 200);
-    };
+      // factory (websocket backend)
+      const localUrl = new URL("/terminal", window.location.href).toString();
+      const queryUrl = new URLSearchParams(window.location.search).get(
+        "terminal",
+      );
+      const terminalUrl = autoPrefix(queryUrl || localUrl);
+      const factory = new TransportFactory(terminalUrl, protocols);
 
-    window.addEventListener("unload", () => {
-      wt.close();
-      term.close();
-    });
+      // wetty (hub)
+      wt = new WeTTY(term, factory);
+      wt.open();
+
+      // throttle resize events
+      let doit: ReturnType<typeof setTimeout>;
+      window.visualViewport!.onresize = () => {
+        if (doit) clearTimeout(doit);
+        doit = setTimeout(() => {
+          if (document.getElementById(idName)) {
+            term!.fit.fit();
+            console.log({
+              width: window.innerWidth,
+              height: window.innerHeight,
+              viewportWidth: window.visualViewport!.width,
+              viewportHeight: window.visualViewport!.height,
+            });
+          }
+        }, 200);
+      };
+
+      onUnload = () => {
+        wt!.close();
+        term!.close();
+      };
+      window.addEventListener("unload", onUnload);
+    })();
 
     return () => {
       // Anything in here is fired on component unmount.
-      term.mute();
-      wt.close();
+      active = false;
+      if (onUnload) {
+        window.removeEventListener("unload", onUnload);
+      }
+      if (term) {
+        term.mute();
+        // Best-effort teardown: mimicks the original cleanup.
+        try {
+          term.close();
+        } catch {
+          // ignore double-dispose
+        }
+      }
+      if (wt) {
+        try {
+          wt.close();
+        } catch {
+          // ignore
+        }
+      }
     };
   }, []);
 
