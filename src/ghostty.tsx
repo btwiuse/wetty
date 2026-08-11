@@ -115,7 +115,36 @@ export class Ghostty {
   }
 
   output(data: string) {
-    this.term.write(data);
+    // ghostty-web's GhosttyTerminal.write() does a single
+    //   ptr = alloc(bytes.length)
+    //   memory.set(bytes, ptr)
+    // and throws `RangeError: offset is out of bounds` if the WASM
+    // linear memory's current page count can't fit the allocation
+    // (the allocator doesn't grow memory on demand). Chunking into
+    // small UTF-8-sized pieces keeps every individual alloc well
+    // inside the live buffer. If a chunk still fails, we halve and
+    // recurse so we degrade gracefully down to a single byte.
+    const tryWrite = (s: string): void => {
+      try {
+        this.term.write(s);
+      } catch (err) {
+        if (s.length <= 1) {
+          console.error(
+            "ghostty-web write failed on 1-byte chunk; dropping:",
+            err,
+          );
+          return;
+        }
+        const mid = s.length >> 1;
+        tryWrite(s.slice(0, mid));
+        tryWrite(s.slice(mid));
+      }
+    };
+
+    const CHUNK = 4096;
+    for (let i = 0; i < data.length; i += CHUNK) {
+      tryWrite(data.slice(i, i + CHUNK));
+    }
   }
 
   focus() {
