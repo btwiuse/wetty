@@ -20,8 +20,9 @@ export class Transport {
   //online: (data: string) => void;
   enc: TextEncoder;
 
-  str2ab(str: string): Uint8Array {
-    return this.enc.encode(str);
+  str2ab(str: string): Uint8Array<ArrayBuffer> {
+    const u8 = this.enc.encode(str);
+    return new Uint8Array(u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength));
   }
 
   constructor(url: string, protocols: string[]) {
